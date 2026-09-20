@@ -6,22 +6,25 @@ const secondsLeft = (deadline: number | null): number => {
 }
 
 export const useCountdown = (deadline: number | null): number => {
-  const [left, setLeft] = useState(() => secondsLeft(deadline))
+  const [state, setState] = useState(() => ({ deadline, left: secondsLeft(deadline) }))
+
+  if (state.deadline !== deadline) {
+    setState({ deadline, left: secondsLeft(deadline) })
+  }
 
   useEffect(() => {
-    setLeft(secondsLeft(deadline))
     if (deadline === null) return
 
     const timer = window.setInterval(() => {
-      const next = secondsLeft(deadline)
-      setLeft(next)
-      if (next === 0) window.clearInterval(timer)
+      const left = secondsLeft(deadline)
+      setState({ deadline, left })
+      if (left === 0) window.clearInterval(timer)
     }, 500)
 
     return () => window.clearInterval(timer)
   }, [deadline])
 
-  return left
+  return state.deadline === deadline ? state.left : secondsLeft(deadline)
 }
 
 export const formatDuration = (totalSeconds: number): string => {

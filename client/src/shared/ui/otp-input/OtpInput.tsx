@@ -3,6 +3,7 @@ import { useRef, type ClipboardEvent, type CSSProperties, type KeyboardEvent } f
 import { cn } from '@/shared/lib'
 
 import styles from './OtpInput.module.css'
+import { EMPTY_CELL } from './otp'
 
 export type OtpInputProps = {
   value: string
@@ -18,11 +19,6 @@ export type OtpInputProps = {
 }
 
 const onlyDigits = (value: string) => value.replace(/\D/g, '')
-
-const EMPTY_CELL = ' '
-
-export const isOtpFilled = (value: string, length = 4): boolean =>
-  value.length === length && !value.includes(EMPTY_CELL)
 
 export const OtpInput = ({
   value,

@@ -46,7 +46,6 @@ const handlers: Record<string, (body: Record<string, unknown>, init: RequestInit
     const code = randomCode()
     challenges.set(phone, { code, expiresAt: Date.now() + CODE_TTL_SECONDS * 1000 })
     currentPhone = phone
-    // eslint-disable-next-line no-console -- код «из СМС» для локальной разработки
     console.info(`[mock api] код подтверждения для ${phone}: ${code}`)
 
     return json(200, {
