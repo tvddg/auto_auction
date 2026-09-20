@@ -1,5 +1,12 @@
-export { fetchCurrentUser, logout, requestOtp, verifyOtp } from './api/session.api'
-export type { RequestOtpDto, VerifyOtpDto } from './api/session.api'
+export {
+  confirmRegistration,
+  fetchCurrentUser,
+  login,
+  logout,
+  resendRegistrationCode,
+  startRegistration,
+} from './api/session.api'
+export type { ConfirmRegistrationDto, LoginDto, StartRegistrationDto } from './api/session.api'
 export { sessionKeys, useCurrentUserQuery } from './api/session.queries'
 export {
   selectIsAuthenticated,
@@ -8,4 +15,4 @@ export {
   useSessionStore,
   useSessionUser,
 } from './model/session.store'
-export type { AuthIntent, AuthResult, OtpChallenge, SessionStatus, User, UserRole } from './model/types'
+export type { AuthResult, RegistrationChallenge, SessionStatus, User } from './model/types'
