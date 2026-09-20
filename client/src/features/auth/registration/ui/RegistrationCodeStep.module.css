@@ -1,0 +1,39 @@
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.back {
+  align-self: flex-start;
+  margin-left: calc(var(--space-2) * -1);
+}
+
+.sentTo {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.phone {
+  color: var(--color-text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.resend {
+  margin: calc(var(--space-1) * -1) calc(var(--space-2) * -1);
+}
+
+.devHint {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+}
