@@ -44,22 +44,28 @@ export const OtpInput = ({
     cell?.select()
   }
 
+  const commit = (chars: string[]) => onChange(chars.join('').trimEnd())
+
   const writeAt = (index: number, digits: string) => {
-    const chars = value.padEnd(length, ' ').split('')
+    const chars = value.padEnd(length, EMPTY_CELL).split('')
     digits.split('').forEach((digit, offset) => {
       if (index + offset < length) chars[index + offset] = digit
     })
 
-    onChange(chars.join('').replace(/\s/g, '').slice(0, length))
+    commit(chars)
     focusCell(index + digits.length)
+  }
+
+  const clearAt = (index: number) => {
+    const chars = value.padEnd(length, EMPTY_CELL).split('')
+    chars[index] = EMPTY_CELL
+    commit(chars)
   }
 
   const handleChange = (index: number, raw: string) => {
     const digits = onlyDigits(raw)
     if (digits.length === 0) {
-      const chars = value.split('')
-      chars[index] = ''
-      onChange(chars.join(''))
+      clearAt(index)
       return
     }
 
@@ -67,11 +73,11 @@ export const OtpInput = ({
   }
 
   const handleKeyDown = (index: number, event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Backspace' && !value[index]) {
+    const isCellEmpty = (value[index] ?? EMPTY_CELL) === EMPTY_CELL
+
+    if (event.key === 'Backspace' && isCellEmpty && index > 0) {
       event.preventDefault()
-      const chars = value.split('')
-      chars[index - 1] = ''
-      onChange(chars.join(''))
+      clearAt(index - 1)
       focusCell(index - 1)
       return
     }
@@ -104,29 +110,33 @@ export const OtpInput = ({
       aria-label={ariaLabel}
       aria-describedby={ariaDescribedBy}
     >
-      {Array.from({ length }, (_, index) => (
-        <input
-          key={index}
-          id={index === 0 ? id : undefined}
-          ref={(node) => {
-            cellsRef.current[index] = node
-          }}
-          className={cn(styles.cell, value[index] && styles.filled, invalid && styles.invalid)}
-          value={value[index] ?? ''}
-          onChange={(event) => handleChange(index, event.target.value)}
-          onKeyDown={(event) => handleKeyDown(index, event)}
-          onPaste={(event) => handlePaste(index, event)}
-          onFocus={(event) => event.target.select()}
-          disabled={disabled}
-          autoFocus={autoFocus && index === 0}
-          autoComplete={index === 0 ? 'one-time-code' : 'off'}
-          inputMode="numeric"
-          type="text"
-          maxLength={1}
-          aria-invalid={invalid || undefined}
-          aria-label={`Цифра ${index + 1} из ${length}`}
-        />
-      ))}
+      {Array.from({ length }, (_, index) => {
+        const digit = (value[index] ?? EMPTY_CELL).trim()
+
+        return (
+          <input
+            key={index}
+            id={index === 0 ? id : undefined}
+            ref={(node) => {
+              cellsRef.current[index] = node
+            }}
+            className={cn(styles.cell, digit !== '' && styles.filled, invalid && styles.invalid)}
+            value={digit}
+            onChange={(event) => handleChange(index, event.target.value)}
+            onKeyDown={(event) => handleKeyDown(index, event)}
+            onPaste={(event) => handlePaste(index, event)}
+            onFocus={(event) => event.target.select()}
+            disabled={disabled}
+            autoFocus={autoFocus && index === 0}
+            autoComplete={index === 0 ? 'one-time-code' : 'off'}
+            inputMode="numeric"
+            type="text"
+            maxLength={1}
+            aria-invalid={invalid || undefined}
+            aria-label={`Цифра ${index + 1} из ${length}`}
+          />
+        )
+      })}
     </div>
   )
 }
