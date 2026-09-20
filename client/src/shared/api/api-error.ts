@@ -40,6 +40,18 @@ export class ApiError extends Error {
 
 export const isApiError = (error: unknown): error is ApiError => error instanceof ApiError
 
+// Ошибка конкретного поля — из details, присланных сервером. 
+export const getFieldError = (error: unknown, field: string): string | null =>
+  isApiError(error) ? (error.details?.[field]?.[0] ?? null) : null
+
+// Ошибка формы целиком: всё, что сервер не отнёс к конкретному полю. 
+export const getFormError = (error: unknown): string | null => {
+  if (error === null || error === undefined) return null
+  if (isApiError(error) && error.details !== undefined) return null
+
+  return getErrorMessage(error)
+}
+
 /** Текст ошибки, который можно показать пользователю. */
 export const getErrorMessage = (error: unknown, fallback = 'Что-то пошло не так. Попробуйте ещё раз'): string => {
   if (isApiError(error)) return error.message

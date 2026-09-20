@@ -1,4 +1,11 @@
-export { ApiError, apiErrorCodes, getErrorMessage, isApiError } from './api-error'
+export {
+  ApiError,
+  apiErrorCodes,
+  getErrorMessage,
+  getFieldError,
+  getFormError,
+  isApiError,
+} from './api-error'
 export type { ApiErrorBody, ApiErrorCode } from './api-error'
 export { authToken } from './auth-token'
 export { apiEndpoints } from './endpoints'

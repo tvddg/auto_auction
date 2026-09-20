@@ -9,3 +9,4 @@ export {
   toE164,
 } from './phone'
 export { formatDuration, useCountdown } from './use-countdown'
+export { isEmailValid, isPasswordValid, MIN_PASSWORD_LENGTH } from './validation'
