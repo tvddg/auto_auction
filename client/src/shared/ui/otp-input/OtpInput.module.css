@@ -1,36 +1,27 @@
 .root {
-  display: grid;
-  grid-template-columns: repeat(var(--otp-length, 4), 1fr);
-  gap: var(--space-3);
+  display: flex;
+  gap: var(--space-2);
 }
 
 .cell {
-  width: 100%;
-  aspect-ratio: 1 / 1.05;
-  max-height: 96px;
+  width: var(--otp-cell-size);
+  height: var(--otp-cell-size);
   padding: 0;
   text-align: center;
   font-family: inherit;
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--color-text);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-bottom: 2px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   outline: none;
   caret-color: var(--color-accent);
   transition:
     border-color var(--transition-fast),
     background-color var(--transition-fast);
-  -moz-appearance: textfield;
-}
-
-.cell::-webkit-outer-spin-button,
-.cell::-webkit-inner-spin-button {
-  margin: 0;
-  -webkit-appearance: none;
 }
 
 .cell:hover:not(:disabled) {
