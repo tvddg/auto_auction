@@ -15,6 +15,8 @@ const read = (): string | null => {
 let cached: string | null = read()
 
 const write = (token: string | null) => {
+  // Повторная запись того же значения слушателей не будит
+  if (cached === token) return
   cached = token
   try {
     if (token === null) window.localStorage.removeItem(STORAGE_KEY)
