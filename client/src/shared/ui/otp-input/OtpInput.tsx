@@ -1,4 +1,4 @@
-import { useRef, type ClipboardEvent, type CSSProperties, type KeyboardEvent } from 'react'
+import { useRef, type ClipboardEvent, type KeyboardEvent } from 'react'
 
 import { cn } from '@/shared/lib'
 
@@ -101,7 +101,6 @@ export const OtpInput = ({
   return (
     <div
       className={cn(styles.root, className)}
-      style={{ '--otp-length': length } as CSSProperties}
       role="group"
       aria-label={ariaLabel}
       aria-describedby={ariaDescribedBy}
