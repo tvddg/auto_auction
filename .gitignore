@@ -1,0 +1,10 @@
+node_modules/
+.pnpm-store/
+.yarn/
+
+*.log
+npm-debug.log*
+
+.idea/
+.vscode/
+.DS_Store
