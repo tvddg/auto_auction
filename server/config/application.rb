@@ -31,8 +31,5 @@ module Server
 
     # Refresh-токен живёт в httpOnly-cookie, поэтому cookies возвращаем в стек.
     config.middleware.use ActionDispatch::Cookies
-
-    # Время храним с зоной, как в схеме БД (timestamptz).
-    config.active_record.postgresql_datetime_type = :timestamptz
   end
 end
