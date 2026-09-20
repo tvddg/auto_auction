@@ -1,8 +1,9 @@
-
 export const apiEndpoints = {
   auth: {
-    requestOtp: '/auth/otp',
-    verifyOtp: '/auth/otp/verify',
+    login: '/auth/login',
+    registration: '/auth/registration',
+    registrationResend: '/auth/registration/resend',
+    registrationConfirm: '/auth/registration/confirm',
     refresh: '/auth/refresh',
     logout: '/auth/logout',
     me: '/auth/me',

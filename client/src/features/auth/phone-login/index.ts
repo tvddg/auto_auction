@@ -1,5 +1,0 @@
-export { useRequestOtp } from './api/use-request-otp'
-export { useVerifyOtp } from './api/use-verify-otp'
-export { OTP_LENGTH, usePhoneLoginStore } from './model/phone-login.store'
-export { AuthIntentTabs } from './ui/AuthIntentTabs'
-export { PhoneLoginForm } from './ui/PhoneLoginForm'
