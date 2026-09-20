@@ -1,4 +1,4 @@
-import { useId, type FormEvent } from 'react'
+import { useEffect, useId, type SubmitEvent } from 'react'
 
 import { env } from '@/shared/config'
 import { getErrorMessage, isApiError } from '@/shared/api'
@@ -58,7 +58,7 @@ export const PhoneLoginForm = ({ className }: { className?: string }) => {
     verifyOtpMutation.mutate({ phone: toE164(phone), intent, code: value })
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!isCodeActive) requestCode()
     else if (isCodeReady) submitCode(code)
@@ -69,6 +69,11 @@ export const PhoneLoginForm = ({ className }: { className?: string }) => {
     if (verifyOtpMutation.error) verifyOtpMutation.reset()
     if (isOtpFilled(value, OTP_LENGTH)) submitCode(value)
   }
+
+  useEffect(() => {
+    if (!codeRequested) return
+    document.getElementById(codeFieldId)?.focus()
+  }, [codeRequested, codeFieldId])
 
   const phoneError = fieldError(requestOtpMutation.error, 'phone')
   const codeError = fieldError(verifyOtpMutation.error, 'code')
