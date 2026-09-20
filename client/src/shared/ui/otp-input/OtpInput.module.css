@@ -1,0 +1,56 @@
+.root {
+  display: grid;
+  grid-template-columns: repeat(var(--otp-length, 4), 1fr);
+  gap: var(--space-3);
+}
+
+.cell {
+  width: 100%;
+  aspect-ratio: 1 / 1.05;
+  max-height: 96px;
+  padding: 0;
+  text-align: center;
+  font-family: inherit;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius-md);
+  outline: none;
+  caret-color: var(--color-accent);
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+  -moz-appearance: textfield;
+}
+
+.cell::-webkit-outer-spin-button,
+.cell::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.cell:hover:not(:disabled) {
+  background-color: var(--color-surface-strong);
+}
+
+.cell:focus-visible {
+  border-bottom-color: var(--color-accent);
+  background-color: var(--color-surface-strong);
+}
+
+.filled {
+  border-bottom-color: var(--color-border-strong);
+}
+
+.invalid {
+  border-bottom-color: var(--color-danger);
+}
+
+.cell:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
