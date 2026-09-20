@@ -3,7 +3,6 @@ import { env } from '@/shared/config'
 import { ApiError, apiErrorCodes, type ApiErrorBody } from './api-error'
 import { authToken } from './auth-token'
 import { apiEndpoints } from './endpoints'
-import { mockFetch } from './mock'
 import { emitUnauthorized } from './unauthorized'
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
@@ -63,7 +62,7 @@ const sendRequest = async (path: string, config: RequestConfig): Promise<Respons
   const [url, init] = buildRequest(path, config)
 
   try {
-    return env.enableApiMock ? await mockFetch(url, init) : await fetch(url, init)
+    return await fetch(url, init)
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error
     throw new ApiError({
