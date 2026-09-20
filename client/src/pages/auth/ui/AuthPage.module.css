@@ -9,12 +9,12 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 560px;
+  max-width: 420px;
   margin: 0 auto;
 }
 
 .intro {
-  padding: var(--space-8) var(--space-5) var(--space-7);
+  padding: var(--space-6) var(--space-4) var(--space-5);
 }
 
 .separator {
@@ -23,29 +23,29 @@
 }
 
 .panel {
-  padding: var(--space-6) var(--space-5) calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-5) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
 }
 
-/* Планшеты: те же блоки, но с воздухом и карточкой */
+/* Планшеты: карточка по центру экрана */
 @media (min-width: 600px) {
   .page {
     justify-content: center;
-    padding: var(--space-7) var(--space-6);
+    padding: var(--space-6) var(--space-5);
   }
 
   .layout {
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-lg);
     background-color: var(--color-bg-elevated);
     overflow: hidden;
   }
 
   .intro {
-    padding: var(--space-7);
+    padding: var(--space-6);
   }
 
   .panel {
-    padding: var(--space-7);
+    padding: var(--space-6);
   }
 }
 
@@ -53,11 +53,11 @@
 @media (min-width: 960px) {
   .layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(400px, 460px);
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
     align-items: center;
-    max-width: 1060px;
-    gap: var(--space-8);
-    padding: var(--space-8);
+    max-width: 880px;
+    gap: var(--space-7);
+    padding: var(--space-7);
   }
 
   .intro,
