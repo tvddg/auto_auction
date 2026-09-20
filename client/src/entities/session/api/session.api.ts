@@ -1,26 +1,50 @@
 import { apiEndpoints, apiRequest } from '@/shared/api'
 
-import type { AuthIntent, AuthResult, OtpChallenge, User } from '../model/types'
+import type { AuthResult, RegistrationChallenge, User } from '../model/types'
 
-export type RequestOtpDto = {
-  phone: string
-  intent: AuthIntent
+export type LoginDto = {
+  email: string
+  password: string
 }
 
-export type VerifyOtpDto = RequestOtpDto & {
+export type StartRegistrationDto = {
+  email: string
+  password: string
+  /** Телефон в формате E.164: +79260000000. */
+  phone: string
+}
+
+export type ConfirmRegistrationDto = {
+  registrationId: string
   code: string
 }
 
-export const requestOtp = (dto: RequestOtpDto, signal?: AbortSignal) =>
-  apiRequest<OtpChallenge>(apiEndpoints.auth.requestOtp, {
+export const login = (dto: LoginDto, signal?: AbortSignal) =>
+  apiRequest<AuthResult>(apiEndpoints.auth.login, {
     method: 'POST',
     body: dto,
     withAuth: false,
     signal,
   })
 
-export const verifyOtp = (dto: VerifyOtpDto, signal?: AbortSignal) =>
-  apiRequest<AuthResult>(apiEndpoints.auth.verifyOtp, {
+export const startRegistration = (dto: StartRegistrationDto, signal?: AbortSignal) =>
+  apiRequest<RegistrationChallenge>(apiEndpoints.auth.registration, {
+    method: 'POST',
+    body: dto,
+    withAuth: false,
+    signal,
+  })
+
+export const resendRegistrationCode = (registrationId: string, signal?: AbortSignal) =>
+  apiRequest<RegistrationChallenge>(apiEndpoints.auth.registrationResend, {
+    method: 'POST',
+    body: { registrationId },
+    withAuth: false,
+    signal,
+  })
+
+export const confirmRegistration = (dto: ConfirmRegistrationDto, signal?: AbortSignal) =>
+  apiRequest<AuthResult>(apiEndpoints.auth.registrationConfirm, {
     method: 'POST',
     body: dto,
     withAuth: false,
