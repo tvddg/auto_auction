@@ -1,10 +1,12 @@
-import { AuthPage } from '@/pages/auth'
-
 import { AppProviders } from './providers'
+import { AppRoutes } from './routes'
+import { BrowserRouter } from "react-router";
 import './styles/index.css'
 
-export const App = () => (
-  <AppProviders>
-    <AuthPage />
+export function App() {
+  return <AppProviders>
+    <BrowserRouter>
+        <AppRoutes />
+    </BrowserRouter>
   </AppProviders>
-)
+}
