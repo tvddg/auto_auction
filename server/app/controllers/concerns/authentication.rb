@@ -1,5 +1,6 @@
 module Authentication
   extend ActiveSupport::Concern
+  include AccessToken
 
   included do
     attr_reader :current_user
@@ -8,7 +9,7 @@ module Authentication
   private
 
   def authenticate!
-    @current_user = AccessToken.user_for(bearer_token)
+    @current_user = user_for(bearer_token)
     render_unauthorized if @current_user.nil?
   end
 

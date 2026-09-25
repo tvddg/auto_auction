@@ -1,6 +1,6 @@
 module ApiErrors
   extend ActiveSupport::Concern
-
+  
   included do
     rescue_from ActionController::ParameterMissing do |error|
       render_error(:unprocessable_content, "validation_error", "Не хватает параметра #{error.param}")

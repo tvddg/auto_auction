@@ -10,116 +10,112 @@ import { OTP_LENGTH, useRegistrationStore } from '../model/registration.store'
 
 import styles from './RegistrationCodeStep.module.css'
 
-/** Шаг 2 регистрации: код из СМС. Аккаунт создаётся, когда код сойдётся. */
 export const RegistrationCodeStep = ({ className }: { className?: string }) => {
-  const codeFieldId = useId()
+    const codeFieldId = useId()
 
-  const registrationId = useRegistrationStore((state) => state.registrationId)
-  const phone = useRegistrationStore((state) => state.phone)
-  const code = useRegistrationStore((state) => state.code)
-  const codeExpiresAt = useRegistrationStore((state) => state.codeExpiresAt)
-  const resendAvailableAt = useRegistrationStore((state) => state.resendAvailableAt)
-  const devCode = useRegistrationStore((state) => state.devCode)
-  const setCode = useRegistrationStore((state) => state.setCode)
-  const backToCredentials = useRegistrationStore((state) => state.backToCredentials)
+    const { registrationId, phone, code,
+        codeExpiresAt, resendAvailableAt, devCode, setCode, reset } = useRegistrationStore();
 
-  const confirmRegistration = useConfirmRegistration()
-  const resendCode = useResendCode()
+    const confirmRegistration = useConfirmRegistration()
+    const resendCode = useResendCode()
 
-  const secondsLeft = useCountdown(codeExpiresAt)
-  const secondsUntilResend = useCountdown(resendAvailableAt)
-  const isCodeAlive = secondsLeft > 0
+    const secondsLeft = useCountdown(codeExpiresAt)
+    const secondsUntilResend = useCountdown(resendAvailableAt)
+    const isCodeAlive = secondsLeft > 0
 
-  const error = confirmRegistration.error ?? resendCode.error
-  const codeError = getFieldError(error, 'code')
-  const formError = getFormError(error)
+    const error = confirmRegistration.error ?? resendCode.error
+    const codeError = getFieldError(error, 'code')
+    const formError = getFormError(error)
 
-  const isCodeReady = isOtpFilled(code, OTP_LENGTH)
+    const isCodeReady = isOtpFilled(code, OTP_LENGTH)
 
-  const submitCode = (value: string) => {
-    if (registrationId === null || confirmRegistration.isPending) return
+    const submitCode = (value: string) => {
+        if (registrationId === null || confirmRegistration.isPending) 
+            return
 
-    confirmRegistration.mutate({ registrationId, code: value })
-  }
+        confirmRegistration.mutate({ registrationId, code: value })
+    }
 
-  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (isCodeReady) submitCode(code)
-  }
+    const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        if (isCodeReady) submitCode(code)
+    }
 
-  const handleCodeChange = (value: string) => {
-    setCode(value)
-    if (confirmRegistration.error) confirmRegistration.reset()
-    // Код короткий — как только он собран, отправляем сами
-    if (isOtpFilled(value, OTP_LENGTH)) submitCode(value)
-  }
+    const handleCodeChange = (value: string) => {
+        setCode(value)
+        if (confirmRegistration.error)
+            confirmRegistration.reset()
 
-  const handleResend = () => {
-    if (registrationId === null || resendCode.isPending) return
+        if (isOtpFilled(value, OTP_LENGTH)) 
+            submitCode(value)
+    }
 
-    confirmRegistration.reset()
-    resendCode.mutate(registrationId)
-  }
+    const handleResend = () => {
+        if (registrationId === null || resendCode.isPending) return
 
-  return (
-    <form className={cn(styles.step, className)} onSubmit={handleSubmit} noValidate>
-      <Button className={styles.back} variant="ghost" onClick={backToCredentials}>
-        ← Назад
-      </Button>
+        confirmRegistration.reset()
+        resendCode.mutate(registrationId)
+    }
 
-      <p className={styles.sentTo}>
-        Код отправлен на <span className={styles.phone}>{formatPhone(normalizePhoneDigits(phone))}</span>
-      </p>
+    return (
+        <form className={cn(styles.step, className)} onSubmit={handleSubmit} noValidate>
+        <Button className={styles.back} variant="ghost" onClick={reset}>
+            ← Назад
+        </Button>
 
-      <FormError message={formError} />
+        <p className={styles.sentTo}>
+            Код отправлен на <span className={styles.phone}>{formatPhone(normalizePhoneDigits(phone))}</span>
+        </p>
 
-      <FormField
-        label="Код из СМС"
-        htmlFor={codeFieldId}
-        error={codeError}
-        aside={
-          isCodeAlive ? (
-            <span className={styles.timer}>
-              <Icon name="grayClock" size={14} />
-              <time>{formatDuration(secondsLeft)}</time>
-            </span>
-          ) : secondsUntilResend > 0 ? (
-            <span className={styles.timer}>Повтор через {formatDuration(secondsUntilResend)}</span>
-          ) : (
-            <Button
-              className={styles.resend}
-              variant="ghost"
-              onClick={handleResend}
-              loading={resendCode.isPending}
-            >
-              Выслать повторно
-            </Button>
-          )
-        }
-      >
-        <OtpInput
-          id={codeFieldId}
-          value={code}
-          onChange={handleCodeChange}
-          length={OTP_LENGTH}
-          disabled={!isCodeAlive || confirmRegistration.isPending}
-          invalid={Boolean(codeError)}
-          autoFocus
-          aria-label={`Код из СМС, ${OTP_LENGTH} цифры`}
-        />
-      </FormField>
+        <FormError message={formError} />
 
-      {devCode ? <p className={styles.devHint}>Код для разработки: {devCode}</p> : null}
+        <FormField
+            label="Код из СМС"
+            htmlFor={codeFieldId}
+            error={codeError}
+            aside={
+            isCodeAlive ? (
+                <span className={styles.timer}>
+                <Icon name="grayClock" size={14} />
+                <time>{formatDuration(secondsLeft)}</time>
+                </span>
+            ) : secondsUntilResend > 0 ? (
+                <span className={styles.timer}>Повтор через {formatDuration(secondsUntilResend)}</span>
+            ) : (
+                <Button
+                className={styles.resend}
+                variant="ghost"
+                onClick={handleResend}
+                loading={resendCode.isPending}
+                >
+                Выслать повторно
+                </Button>
+            )
+            }
+        >
+            <OtpInput
+            id={codeFieldId}
+            value={code}
+            onChange={handleCodeChange}
+            length={OTP_LENGTH}
+            disabled={!isCodeAlive || confirmRegistration.isPending}
+            invalid={Boolean(codeError)}
+            autoFocus
+            aria-label={`Код из СМС, ${OTP_LENGTH} цифры`}
+            />
+        </FormField>
 
-      <Button
-        type="submit"
-        fullWidth
-        loading={confirmRegistration.isPending}
-        disabled={!isCodeReady || !isCodeAlive}
-        trailing="→"
-      >
-        Подтвердить
-      </Button>
-    </form>
-  )
+        {devCode ? <p className={styles.devHint}>Код для разработки: {devCode}</p> : null}
+
+        <Button
+            type="submit"
+            fullWidth
+            loading={confirmRegistration.isPending}
+            disabled={!isCodeReady || !isCodeAlive}
+            trailing="→"
+        >
+            Подтвердить
+        </Button>
+        </form>
+    )
 }

@@ -2,10 +2,9 @@ import { useState } from 'react'
 
 import { useIsAuthenticated } from '@/entities/session'
 import { EmailLoginForm } from '@/features/auth/email-login'
-import { OAuthProviders } from '@/features/auth/oauth-login'
 import { RegistrationFlow, useRegistrationStore } from '@/features/auth/registration'
 import { cn } from '@/shared/lib'
-import { Divider, SegmentedControl } from '@/shared/ui'
+import { SegmentedControl } from '@/shared/ui'
 
 import styles from './AuthPanel.module.css'
 import { SessionSummary } from './SessionSummary'
@@ -31,8 +30,8 @@ export const AuthPanel = ({ className }: { className?: string }) => {
   }
 
   const handleModeChange = (next: AuthMode) => {
-    // Уходя с регистрации, сбрасываем незаконченную заявку
-    if (next !== mode) resetRegistration()
+    if (next !== mode) 
+        resetRegistration()
     setMode(next)
   }
 
@@ -46,9 +45,6 @@ export const AuthPanel = ({ className }: { className?: string }) => {
       />
 
       {mode === 'login' ? <EmailLoginForm /> : <RegistrationFlow />}
-
-      <Divider label="или" />
-      <OAuthProviders />
 
       <p className={styles.legal}>
         Продолжая, вы принимаете правила площадки. Ставка — юридически значимое действие.

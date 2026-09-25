@@ -1,11 +1,12 @@
 # Короткоживущий токен доступа: подписанный payload без похода в базу.
 # Живёт в localStorage клиента, поэтому TTL маленький, а продление — через refresh-cookie.
 module AccessToken
+  extend ActiveSupport::Concern
   TTL = 15.minutes
 
-  module_function
+  private
 
-  def generate(user:, session:)
+  def generateToken(user:, session:)
     verifier.generate({ uid: user.id, sid: session.id }, expires_in: TTL)
   end
 

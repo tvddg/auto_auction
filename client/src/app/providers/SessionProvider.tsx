@@ -1,10 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, type PropsWithChildren } from 'react'
 
 import { useSessionStore } from '@/entities/session'
 import { authToken, onUnauthorized } from '@/shared/api'
 
-export const SessionProvider = ({ children }: { children: ReactNode }) => {
+export const SessionProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient()
 
   useEffect(() => {

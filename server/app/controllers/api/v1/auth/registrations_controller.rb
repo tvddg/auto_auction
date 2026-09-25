@@ -13,11 +13,11 @@ module Api
                    with: -> { render_too_many_requests("Слишком много заявок. Попробуйте через минуту") },
                    only: %i[create resend]
 
-        # POST /api/v1/auth/registration — шаг 1
+        # POST /api/v1/auth/registration
         def create
           email = params[:email].to_s.strip.downcase
           password = params[:password].to_s
-          phone = Phone.normalize(params[:phone])
+          phone = PhoneHelper.normalizePhone(params[:phone])
 
           details = validate_credentials(email:, password:, phone:)
           return render_error(:unprocessable_content, "validation_error", "Проверьте данные", details:) if details.any?
@@ -81,7 +81,7 @@ module Api
           details = {}
           details[:email] = [ "Введите корректный email" ] unless URI::MailTo::EMAIL_REGEXP.match?(email)
           details[:password] = [ "Минимум #{MIN_PASSWORD_LENGTH} символов" ] if password.length < MIN_PASSWORD_LENGTH
-          details[:phone] = [ "Введите номер полностью" ] unless Phone.valid?(phone)
+          details[:phone] = [ "Введите номер полностью" ] unless PhoneHelper.phoneValid?(phone)
           details
         end
 

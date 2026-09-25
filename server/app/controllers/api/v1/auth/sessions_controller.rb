@@ -3,6 +3,7 @@ module Api
     module Auth
       class SessionsController < Api::V1::BaseController
         include RefreshCookie
+        include AccessToken
 
         before_action :authenticate!, only: :show
 
@@ -34,7 +35,7 @@ module Api
           set_refresh_cookie(session.rotate!, session.expires_at)
 
           render json: {
-            accessToken: AccessToken.generate(user: session.user, session:),
+            accessToken: generateToken(user: session.user, session:),
             expiresIn: AccessToken::TTL.to_i
           }
         end

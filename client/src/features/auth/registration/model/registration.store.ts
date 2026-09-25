@@ -19,7 +19,6 @@ type RegistrationState = {
 
   goToCodeStep: (challenge: RegistrationChallenge) => void
   setCode: (code: string) => void
-  backToCredentials: () => void
   reset: () => void
 }
 
@@ -48,9 +47,6 @@ export const useRegistrationStore = create<RegistrationState>()((set) => ({
     }),
 
   setCode: (code) => set({ code }),
-
-  // Возврат к первому шагу: заявка на сервере протухнет сама.
-  backToCredentials: () => set(initialState),
 
   reset: () => set(initialState),
 }))

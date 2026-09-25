@@ -1,5 +1,6 @@
 module RefreshCookie
   extend ActiveSupport::Concern
+  include AccessToken
 
   COOKIE_NAME = :refresh_token
   # Cookie уходит только на эндпоинты авторизации, остальному API она не нужна.
@@ -30,7 +31,7 @@ module RefreshCookie
     set_refresh_cookie(token, session.expires_at)
 
     render json: {
-      accessToken: AccessToken.generate(user:, session:),
+      accessToken: generateToken(user:, session:),
       expiresIn: AccessToken::TTL.to_i,
       user: UserSerializer.call(user)
     }

@@ -5,16 +5,16 @@ class PendingRegistration < ApplicationRecord
   LIFETIME = 30.minutes
 
   normalizes :email, with: ->(email) { email.to_s.strip.downcase }
-  normalizes :phone, with: ->(phone) { Phone.normalize(phone) }
+  normalizes :phone, with: ->(phone) { PhoneHelper.normalizePhone(phone) }
 
   scope :fresh, -> { where(created_at: LIFETIME.ago..) }
 
   def self.open!(email:, password:, phone:, ip: nil)
-    code = VerificationCode.generate
+    code = VerificationCodeHelper.generateCode
     registration = create!(
       email:, phone:, request_ip: ip,
       password_digest: BCrypt::Password.create(password),
-      code_digest: VerificationCode.digest(code),
+      code_digest: VerificationCodeHelper.digestCode(code),
       expires_at: CODE_TTL.from_now,
       last_sent_at: Time.current
     )
@@ -23,8 +23,8 @@ class PendingRegistration < ApplicationRecord
   end
 
   def resend!
-    code = VerificationCode.generate
-    update!(code_digest: VerificationCode.digest(code), expires_at: CODE_TTL.from_now,
+    code = VerificationCodeHelper.generateCode
+    update!(code_digest: VerificationCodeHelper.digestCode(code), expires_at: CODE_TTL.from_now,
             last_sent_at: Time.current, attempts: 0)
     code
   end
@@ -34,7 +34,7 @@ class PendingRegistration < ApplicationRecord
   def resend_allowed_at = last_sent_at + RESEND_AFTER
   def resend_allowed? = resend_allowed_at <= Time.current
   def seconds_until_resend = [ (resend_allowed_at - Time.current).ceil, 0 ].max
-  def matches_code?(code) = VerificationCode.matches?(code_digest, code)
+  def matches_code?(code) = VerificationCodeHelper.codeMatches?(code_digest, code)
 
   # Шаг 2: код верный — превращаем заявку в пользователя.
   def confirm!
