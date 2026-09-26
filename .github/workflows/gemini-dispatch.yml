@@ -18,6 +18,9 @@ on:
     types:
       - 'created'
 
+env:
+  GEMINI_CLI_TRUST_WORKSPACE: 'true'
+
 defaults:
   run:
     shell: 'bash'
