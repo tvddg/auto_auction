@@ -1,0 +1,31 @@
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--space-6) var(--space-4);
+  background-color: var(--color-bg);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 420px;
+  text-align: center;
+}
+
+.code {
+  margin: 0;
+  font-size: 96px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.message {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+}
