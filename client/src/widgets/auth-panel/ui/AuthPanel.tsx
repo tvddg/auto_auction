@@ -16,7 +16,11 @@ const modes = [
   { value: 'register', label: 'Регистрация' },
 ] as const satisfies ReadonlyArray<{ value: AuthMode; label: string }>
 
-export const AuthPanel = ({ className }: { className?: string }) => {
+interface AuthPanelProps {
+    className?: string;
+}
+
+export const AuthPanel = ({ className }: AuthPanelProps) => {
   const isAuthenticated = useIsAuthenticated()
   const [mode, setMode] = useState<AuthMode>('login')
   const resetRegistration = useRegistrationStore((state) => state.reset)
