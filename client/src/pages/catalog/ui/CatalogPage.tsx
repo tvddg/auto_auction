@@ -1,4 +1,4 @@
-import cl from "./MainPage.module.css"
+import cl from "./CatalogPage.module.css"
 
 import { LotCategories } from "@/features/lot/lot-categories"
 import { LotFilters } from "@/features/lot/lot-filters"
@@ -6,11 +6,12 @@ import { LotSort } from "@/features/lot/lot-sort"
 import { SearchField } from "@/shared/ui"
 import { CardsGrid, CardsGridItem } from "@/widgets/cards-grid"
 import { Header } from "@/widgets/header"
+import { NavBar } from "@/widgets/nav-bar"
 
 // TODO: заменить на карточки лотов
 const cardStubs = Array.from({ length: 12 }, (_, i) => i)
 
-export function MainPage() {
+export function CatalogPage() {
     return <main>
         <div className={cl.headerTab}>
             <Header />
@@ -31,5 +32,7 @@ export function MainPage() {
                 </CardsGridItem>
             ))}
         </CardsGrid>
+
+        <NavBar />
     </main>
 }
