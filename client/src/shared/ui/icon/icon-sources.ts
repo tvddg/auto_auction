@@ -7,6 +7,9 @@ import phoneIcon from '@/assets/phone.png'
 import redClockIcon from '@/assets/red-clock.png'
 import locationIcon from '@/assets/location.png'
 import notificationIcon from '@/assets/notification.png'
+import searchIcon from '@/assets/search.png'
+import filtersIcon from '@/assets/filters.png'
+import downArrowIcon from '@/assets/down-arrow.png'
 
 export const iconSources = {
   car: carIcon,
@@ -17,7 +20,10 @@ export const iconSources = {
   phone: phoneIcon,
   redClock: redClockIcon,
   location: locationIcon,
-  notification: notificationIcon
+  notification: notificationIcon,
+  search: searchIcon,
+  filters: filtersIcon,
+  downArrow: downArrowIcon,
 } as const
 
 export type IconName = keyof typeof iconSources

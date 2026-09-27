@@ -1,0 +1,57 @@
+.root {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.openButton,
+.chip {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height-lg);
+  padding: 0 var(--space-4);
+  font-family: inherit;
+  font-size: var(--font-size-lg);
+  white-space: nowrap;
+}
+
+.openButton {
+  border: none;
+  background-color: var(--color-accent);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.openButton:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.count {
+  font-weight: 800;
+  color: var(--color-bg);
+}
+
+.chip {
+  font-weight: 500;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+}
+
+.remove {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 1.4em;
+  line-height: 1;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.remove:hover {
+  color: var(--color-text);
+}
