@@ -1,5 +1,6 @@
-import cl from "./MainPage.module.css"
+import { Header } from "@/widgets/header"
+import { LocationNotifications } from "@/widgets/location-notifications"
 
 export function MainPage() {
-    return <div className={cl.hello}>Hello</div>
+    return <Header actions={<LocationNotifications />} />
 }
