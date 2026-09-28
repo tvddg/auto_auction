@@ -17,11 +17,6 @@
     background-color: var(--color-border-strong);
 }
 
-.cardStub {
-    aspect-ratio: 3 / 4;
-    background-color: var(--color-surface);
-}
-
 .lotsCount {
     font-size: var(--font-size-sm);
     font-weight: 500;

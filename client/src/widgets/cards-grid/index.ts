@@ -1,1 +1,1 @@
-export { CardsGrid, CardsGridItem } from "./ui/CardsGrid";
+export { CardsGrid } from "./ui/CardsGrid";
