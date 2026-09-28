@@ -25,13 +25,15 @@ export function CatalogPage() {
             <div className={cl.separator} />
         </div>
 
-        <CardsGrid>
-            {cardStubs.map((i) => (
-                <CardsGridItem key={i}>
-                    <div className={cl.cardStub} />
-                </CardsGridItem>
-            ))}
-        </CardsGrid>
+        <div className={cl.cardsGrid}>
+            <CardsGrid>
+                {cardStubs.map((i) => (
+                    <CardsGridItem key={i}>
+                        <div className={cl.cardStub} />
+                    </CardsGridItem>
+                ))}
+            </CardsGrid>
+        </div>
 
         <NavBar />
     </main>
