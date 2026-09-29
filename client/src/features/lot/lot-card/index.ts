@@ -1,0 +1,1 @@
+export { LotCard, type LotCardProps } from "./ui/LotCard";

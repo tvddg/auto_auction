@@ -38,6 +38,10 @@ input {
   outline-offset: 2px;
 }
 
+select, select::picker(select) {
+  appearance: base-select;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
