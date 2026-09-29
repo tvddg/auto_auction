@@ -1,3 +1,8 @@
+.sortingContainer {
+    display: flex;
+    gap: var(--space-4);
+}
+
 .trigger {
   display: inline-flex;
   align-items: center;
@@ -19,6 +24,19 @@
   color: var(--color-text-secondary);
 }
 
+.trigger::picker(select) {
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border-color: var(--color-border);
+}
+
 .arrow {
   opacity: 0.6;
+}
+
+
+@media (max-width: 960px) {
+    .trigger {
+        font-size: var(--font-size-xs);
+    }
 }

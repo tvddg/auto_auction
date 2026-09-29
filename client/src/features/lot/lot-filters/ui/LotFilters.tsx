@@ -1,6 +1,6 @@
 import { Icon } from '@/shared/ui'
 
-import { useFiltersStore } from '../api/filters.store'
+import { useFiltersStore } from '../model/filters.store'
 import { formatPriceRange, formatYearRange } from '../lib/format'
 import styles from './LotFilters.module.css'
 
