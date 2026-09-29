@@ -24,6 +24,11 @@
     text-decoration: none;
     transition: color var(--transition-fast);
 }
+@media (min-width: 960px) {
+    .link {
+        font-size: var(--font-size-sm);
+    }
+}
 
 .link:hover:not(.active) {
     color: var(--color-text);

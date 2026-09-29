@@ -50,7 +50,7 @@ export function CatalogPage() {
             <LotCategories />
             <LotFilters />
             <div className={cl.listToolbar}>
-                <span className={cl.lotsCount}>128 лотов</span>
+                <span className={cl.lotsCount}>{mockLots.length} лотов</span>
                 <LotSort />
             </div>
             <div className={cl.separator} />
