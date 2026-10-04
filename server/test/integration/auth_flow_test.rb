@@ -120,7 +120,7 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
       assert_equal "code_expired", response.parsed_body.dig("error", "code")
     end
 
-    assert_equal 0, User.count
+    assert_not User.exists?(email: EMAIL)
   end
 
   test "без токена профиль недоступен" do

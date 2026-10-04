@@ -1,0 +1,30 @@
+# Идущий аукцион: ставки есть, лидер — не продавец (camry продаёт users(:one))
+camry_active:
+  car: camry
+  leader: two
+  status: active
+  starting_price_cents: 150000000
+  current_price_cents: 165000000
+  bid_count: 3
+  starts_at: <%= 1.day.ago %>
+  ends_at: <%= 2.hours.from_now %>
+
+# Прошлый аукцион той же машины: закрытые лоты не мешают повторному выставлению
+camry_unsold:
+  car: camry
+  status: unsold
+  starting_price_cents: 180000000
+  current_price_cents: 180000000
+  bid_count: 0
+  starts_at: <%= 10.days.ago %>
+  ends_at: <%= 7.days.ago %>
+
+# Запланированный аукцион: ставок и лидера ещё нет
+model_3_upcoming:
+  car: model_3
+  status: upcoming
+  starting_price_cents: 280000000
+  current_price_cents: 280000000
+  bid_count: 0
+  starts_at: <%= 1.day.from_now %>
+  ends_at: <%= 4.days.from_now %>

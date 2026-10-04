@@ -1,0 +1,65 @@
+# История ставок лота camry_active (продавец — users(:one)).
+# Итог совпадает с лотом: 3 принятые ставки, цена 165 000 000, лидер users(:two).
+
+camry_first:
+  lot: camry_active
+  user: two
+  amount_cents: 155000000
+  status: accepted
+  seq: 1
+  idempotency_key: 0b6f1c1e-3a52-4c1f-9f0e-000000000001
+  created_at: <%= 20.hours.ago %>
+  updated_at: <%= 20.hours.ago %>
+
+camry_second:
+  lot: camry_active
+  user: three
+  amount_cents: 160000000
+  status: accepted
+  seq: 2
+  idempotency_key: 0b6f1c1e-3a52-4c1f-9f0e-000000000002
+  created_at: <%= 10.hours.ago %>
+  updated_at: <%= 10.hours.ago %>
+
+camry_third:
+  lot: camry_active
+  user: two
+  amount_cents: 165000000
+  status: accepted
+  seq: 3
+  idempotency_key: 0b6f1c1e-3a52-4c1f-9f0e-000000000003
+  created_at: <%= 5.hours.ago %>
+  updated_at: <%= 5.hours.ago %>
+
+# Опоздавшая ставка на ту же сумму, что и camry_second: отклонена, сумма может повторяться
+camry_too_low:
+  lot: camry_active
+  user: three
+  amount_cents: 160000000
+  status: rejected
+  rejection_reason: amount_too_low
+  idempotency_key: 0b6f1c1e-3a52-4c1f-9f0e-000000000004
+  created_at: <%= 5.hours.ago %>
+  updated_at: <%= 5.hours.ago %>
+
+# Продавец пытается поднять цену на свой лот
+camry_own_lot:
+  lot: camry_active
+  user: one
+  amount_cents: 170000000
+  status: rejected
+  rejection_reason: own_lot
+  idempotency_key: 0b6f1c1e-3a52-4c1f-9f0e-000000000005
+  created_at: <%= 1.hour.ago %>
+  updated_at: <%= 1.hour.ago %>
+
+# Ставка до старта аукциона
+model_3_not_started:
+  lot: model_3_upcoming
+  user: one
+  amount_cents: 285000000
+  status: rejected
+  rejection_reason: lot_not_active
+  idempotency_key: 0b6f1c1e-3a52-4c1f-9f0e-000000000006
+  created_at: <%= 2.hours.ago %>
+  updated_at: <%= 2.hours.ago %>
