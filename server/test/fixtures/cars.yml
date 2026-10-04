@@ -1,0 +1,32 @@
+camry:
+  seller: one
+  brand: Toyota
+  model: Camry
+  trim: Prestige
+  color: Черный
+  year: 2019
+  body_type: sedan
+  mileage: 87000
+  vin: JTNB11HK103456789
+  transmission: automatic
+  drive_type: fwd
+  fuel_type: petrol
+  horse_power: 181
+  engine_volume_cc: 2487
+  city: Москва
+  description: Один владелец, обслуживание у дилера.
+
+model_3:
+  seller: two
+  brand: Tesla
+  model: Model 3
+  color: Белый
+  year: 2021
+  body_type: sedan
+  mileage: 42000
+  vin: 5YJ3E1EA7MF000001
+  transmission: automatic
+  drive_type: awd
+  fuel_type: electric
+  horse_power: 351
+  city: Санкт-Петербург

@@ -1,0 +1,17 @@
+one:
+  email: seller.one@example.com
+  phone: "+79990000001"
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  phone_verified_at: <%= Time.current %>
+
+two:
+  email: seller.two@example.com
+  phone: "+79990000002"
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  phone_verified_at: <%= Time.current %>
+
+three:
+  email: bidder.three@example.com
+  phone: "+79990000003"
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  phone_verified_at: <%= Time.current %>

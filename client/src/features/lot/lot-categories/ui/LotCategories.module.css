@@ -1,0 +1,47 @@
+.root {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 2px solid var(--color-border-strong);
+  scrollbar-width: none;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  background: none;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.tab:first-child {
+  padding-left: 0;
+}
+
+.tab:hover:not(.active) {
+  color: var(--color-text-secondary);
+}
+
+.active {
+  font-weight: 800;
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent);
+}
+
+.active::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-accent);
+}
