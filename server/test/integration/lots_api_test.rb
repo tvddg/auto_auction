@@ -144,7 +144,8 @@ class LotsApiTest < ActionDispatch::IntegrationTest
     assert_equal 150_000_000, body["startingPrice"]
     assert_equal 165_000_000, body["currentPrice"]
     assert_equal 3, body["bidCount"]
-    assert_equal({ "name" => nil, "phone" => "+79990000001" }, body["sellerInfo"])
+    assert_equal({ "name" => nil }, body["sellerInfo"])
+    assert_not_includes response.body, users(:one).phone
 
     car = body["carInfo"]
     assert_equal "JTNB11HK103456789", car["vin"]

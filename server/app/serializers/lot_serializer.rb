@@ -67,7 +67,7 @@ module LotSerializer
         city: lot.city,
         description: car.description
       },
-      sellerInfo: { name: lot.seller.name, phone: lot.seller.phone },
+      sellerInfo: { name: lot.seller.name },
       status: lot.phase(now),
       startingPrice: lot.starting_price_cents,
       currentPrice: lot.current_price_cents,
