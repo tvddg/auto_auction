@@ -1,24 +1,20 @@
 require "test_helper"
 
 class CarTest < ActiveSupport::TestCase
-  REQUIRED_FIELDS = %i[seller brand model color year body_type mileage vin transmission drive_type fuel_type horse_power city].freeze
+  REQUIRED_FIELDS = %i[brand model year body_type transmission drive_type fuel_type horse_power].freeze
 
   def build_car(**overrides)
     Car.new({
-      seller: users(:one),
       brand: "BMW",
       model: "X5",
-      color: "Синий",
+      trim: "xDrive30d",
       year: 2020,
       body_type: :suv,
-      mileage: 60_000,
-      vin: "WBAKS610X00C12345",
       transmission: :automatic,
       drive_type: :awd,
       fuel_type: :diesel,
       horse_power: 249,
-      engine_volume_cc: 2993,
-      city: "Казань"
+      engine_volume_cc: 2993
     }.merge(overrides))
   end
 
@@ -26,7 +22,7 @@ class CarTest < ActiveSupport::TestCase
     car = build_car
 
     assert car.save, car.errors.full_messages.to_sentence
-    assert_equal users(:one), car.reload.seller
+    assert car.reload.suv?
   end
 
   test "без обязательных полей машина не сохраняется" do
@@ -37,11 +33,11 @@ class CarTest < ActiveSupport::TestCase
   end
 
   test "пустые строки в текстовых полях считаются незаполненными" do
-    car = build_car(brand: "  ", city: "")
+    car = build_car(brand: "  ", trim: "")
 
     assert_not car.valid?
     assert car.errors.key?(:brand)
-    assert car.errors.key?(:city)
+    assert_nil car.trim
   end
 
   test "электромобиль сохраняется без объёма двигателя" do
@@ -60,52 +56,8 @@ class CarTest < ActiveSupport::TestCase
     end
   end
 
-  test "VIN приводится к верхнему регистру и очищается от пробелов" do
-    car = build_car(vin: "  wbaks610x00c12345 ")
-
-    assert car.valid?, car.errors.full_messages.to_sentence
-    assert_equal "WBAKS610X00C12345", car.vin
-  end
-
-  test "некорректный VIN отклоняется" do
-    {
-      "короче 17 символов" => "WBAKS610X00C1234",
-      "длиннее 17 символов" => "WBAKS610X00C123456",
-      "содержит I" => "WBAKS610I00C12345",
-      "содержит O" => "WBAKS610O00C12345",
-      "содержит Q" => "WBAKS610Q00C12345",
-      "содержит кириллицу" => "WBAKS610Х00C12345",
-      "содержит спецсимволы" => "WBAKS610-00C12345"
-    }.each do |reason, vin|
-      car = build_car(vin: vin)
-
-      assert_not car.valid?, "VIN #{reason} прошёл валидацию"
-      assert car.errors.key?(:vin)
-    end
-  end
-
-  test "повторяющийся VIN отклоняется" do
-    car = build_car(vin: cars(:camry).vin)
-
-    assert_not car.valid?
-    assert car.errors.key?(:vin)
-  end
-
-  test "некорректный пробег отклоняется" do
-    [-1, 1.5, "много"].each do |mileage|
-      car = build_car(mileage: mileage)
-
-      assert_not car.valid?, "пробег #{mileage.inspect} прошёл валидацию"
-      assert car.errors.key?(:mileage)
-    end
-  end
-
-  test "нулевой пробег допустим" do
-    assert build_car(mileage: 0).valid?
-  end
-
   test "некорректный год отклоняется" do
-    [1899, 2101, 2020.5, "давно"].each do |year|
+    [ 1899, 2101, 2020.5, "давно" ].each do |year|
       car = build_car(year: year)
 
       assert_not car.valid?, "год #{year.inspect} прошёл валидацию"
@@ -114,7 +66,7 @@ class CarTest < ActiveSupport::TestCase
   end
 
   test "некорректная мощность отклоняется" do
-    [0, -100, 2001, 150.5, "много"].each do |horse_power|
+    [ 0, -100, 2001, 150.5, "много" ].each do |horse_power|
       car = build_car(horse_power: horse_power)
 
       assert_not car.valid?, "мощность #{horse_power.inspect} прошла валидацию"
@@ -123,7 +75,7 @@ class CarTest < ActiveSupport::TestCase
   end
 
   test "некорректный объём двигателя отклоняется" do
-    [499, 10_001, 0, -1600, 1998.5, "большой"].each do |engine_volume_cc|
+    [ 499, 10_001, 0, -1600, 1998.5, "большой" ].each do |engine_volume_cc|
       car = build_car(engine_volume_cc: engine_volume_cc)
 
       assert_not car.valid?, "объём #{engine_volume_cc.inspect} прошёл валидацию"
@@ -142,5 +94,44 @@ class CarTest < ActiveSupport::TestCase
     assert_not car.valid?
     assert car.errors.key?(:fuel_type)
     assert car.errors.key?(:body_type)
+  end
+
+  # --- похожие машины ---
+
+  test "similar находит машину с той же комплектацией без учёта описания" do
+    existing = cars(:camry)
+    car = build_car(**existing.slice(*Car::CONFIGURATION_ATTRIBUTES).symbolize_keys, description: "Другое описание")
+
+    assert_equal existing, car.similar
+  end
+
+  test "similar учитывает пустую комплектацию как значение" do
+    existing = cars(:model_3)
+
+    assert_equal existing, build_car(**existing.slice(*Car::CONFIGURATION_ATTRIBUTES).symbolize_keys).similar
+    assert_nil build_car(**existing.slice(*Car::CONFIGURATION_ATTRIBUTES).symbolize_keys, trim: "Long Range").similar
+  end
+
+  test "отличие в любом поле комплектации делает машину новой" do
+    base = cars(:camry).slice(*Car::CONFIGURATION_ATTRIBUTES).symbolize_keys
+
+    { year: 2020, horse_power: 200, engine_volume_cc: 2000, transmission: :cvt }.each do |field, value|
+      assert_nil build_car(**base, field => value).similar, "#{field} не учитывается"
+    end
+  end
+
+  test "сохранённая машина не считается похожей на саму себя" do
+    assert_nil cars(:camry).similar
+  end
+
+  test "база отклоняет вторую машину с той же комплектацией" do
+    car = build_car(**cars(:model_3).slice(*Car::CONFIGURATION_ATTRIBUTES).symbolize_keys)
+
+    assert_raises(ActiveRecord::RecordNotUnique) { car.save(validate: false) }
+  end
+
+  test "название собирается из марки, модели и комплектации" do
+    assert_equal "Toyota Camry Prestige", cars(:camry).title
+    assert_equal "Tesla Model 3", cars(:model_3).title
   end
 end

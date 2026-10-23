@@ -1,0 +1,16 @@
+# Те же диапазоны, что в db/seeds.rb
+up_to_500k:
+  upper_bound_cents: 50000000
+  step_cents: 500000
+
+up_to_1m:
+  upper_bound_cents: 100000000
+  step_cents: 1000000
+
+up_to_3m:
+  upper_bound_cents: 300000000
+  step_cents: 2500000
+
+above:
+  upper_bound_cents:
+  step_cents: 5000000

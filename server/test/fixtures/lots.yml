@@ -1,7 +1,12 @@
-# Идущий аукцион: ставки есть, лидер — не продавец (camry продаёт users(:one))
+# Идущий аукцион: ставки есть, лидер — не продавец
 camry_active:
   car: camry
+  seller: one
   leader: two
+  vin: JTNB11HK103456789
+  mileage: 87000
+  color: Черный
+  city: Москва
   status: active
   starting_price_cents: 150000000
   current_price_cents: 165000000
@@ -9,9 +14,14 @@ camry_active:
   starts_at: <%= 1.day.ago %>
   ends_at: <%= 2.hours.from_now %>
 
-# Прошлый аукцион той же машины: закрытые лоты не мешают повторному выставлению
+# Прошлый аукцион той же машины (тот же VIN): закрытые лоты не мешают повторному выставлению
 camry_unsold:
   car: camry
+  seller: one
+  vin: JTNB11HK103456789
+  mileage: 86000
+  color: Черный
+  city: Москва
   status: unsold
   starting_price_cents: 180000000
   current_price_cents: 180000000
@@ -22,6 +32,11 @@ camry_unsold:
 # Запланированный аукцион: ставок и лидера ещё нет
 model_3_upcoming:
   car: model_3
+  seller: two
+  vin: 5YJ3E1EA7MF000001
+  mileage: 42000
+  color: Белый
+  city: Санкт-Петербург
   status: upcoming
   starting_price_cents: 280000000
   current_price_cents: 280000000

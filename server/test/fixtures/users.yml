@@ -1,17 +1,21 @@
+# Пароль у всех — password123. Депозит покрывает ставки на лоты из фикстур (до 10 000 000 ₽)
 one:
   email: seller.one@example.com
   phone: "+79990000001"
   password_digest: <%= BCrypt::Password.create("password123") %>
   phone_verified_at: <%= Time.current %>
+  deposit_cents: 1000000000
 
 two:
   email: seller.two@example.com
   phone: "+79990000002"
   password_digest: <%= BCrypt::Password.create("password123") %>
   phone_verified_at: <%= Time.current %>
+  deposit_cents: 1000000000
 
 three:
   email: bidder.three@example.com
   phone: "+79990000003"
   password_digest: <%= BCrypt::Password.create("password123") %>
   phone_verified_at: <%= Time.current %>
+  deposit_cents: 1000000000
