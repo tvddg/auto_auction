@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_04_151532) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_100100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "bid_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "step_cents", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "upper_bound_cents"
+    t.index ["upper_bound_cents"], name: "index_bid_steps_on_upper_bound_cents", unique: true, nulls_not_distinct: true
+    t.check_constraint "step_cents > 0", name: "bid_steps_step_positive"
+    t.check_constraint "upper_bound_cents > 0", name: "bid_steps_upper_bound_positive"
+  end
 
   create_table "bids", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.bigint "amount_cents", null: false
@@ -36,53 +46,52 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_151532) do
   create_table "cars", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "body_type", null: false
     t.string "brand", null: false
-    t.string "city", null: false
-    t.string "color", null: false
     t.datetime "created_at", null: false
     t.text "description"
     t.integer "drive_type", null: false
     t.integer "engine_volume_cc"
     t.integer "fuel_type", null: false
     t.integer "horse_power", null: false
-    t.integer "mileage", null: false
     t.string "model", null: false
-    t.uuid "seller_id", null: false
     t.integer "transmission", null: false
     t.string "trim"
     t.datetime "updated_at", null: false
-    t.string "vin", limit: 17, null: false
     t.integer "year", null: false
-    t.index ["brand", "model"], name: "index_cars_on_brand_and_model"
-    t.index ["city"], name: "index_cars_on_city"
-    t.index ["seller_id"], name: "index_cars_on_seller_id"
-    t.index ["vin"], name: "index_cars_on_vin", unique: true
+    t.index ["brand", "model", "trim", "year", "body_type", "transmission", "drive_type", "fuel_type", "horse_power", "engine_volume_cc"], name: "index_cars_on_configuration", unique: true, nulls_not_distinct: true
     t.check_constraint "engine_volume_cc >= 500 AND engine_volume_cc <= 10000", name: "cars_engine_volume_range"
     t.check_constraint "horse_power >= 1 AND horse_power <= 2000", name: "cars_horse_power_range"
-    t.check_constraint "mileage >= 0", name: "cars_mileage_non_negative"
-    t.check_constraint "vin::text ~ '^[A-HJ-NPR-Z0-9]{17}$'::text", name: "cars_vin_format"
     t.check_constraint "year >= 1900 AND year <= 2100", name: "cars_year_range"
   end
 
   create_table "lots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "bid_count", default: 0, null: false
     t.uuid "car_id", null: false
+    t.string "city", null: false
+    t.string "color", null: false
     t.datetime "created_at", null: false
     t.bigint "current_price_cents", null: false
     t.datetime "ends_at", null: false
     t.uuid "leader_id"
+    t.integer "mileage", null: false
+    t.uuid "seller_id", null: false
     t.bigint "starting_price_cents", null: false
     t.datetime "starts_at", null: false
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.string "vin", limit: 17, null: false
     t.index ["car_id"], name: "index_lots_on_car_id"
-    t.index ["car_id"], name: "index_lots_on_car_id_open", unique: true, where: "(status = ANY (ARRAY[0, 1]))"
+    t.index ["city"], name: "index_lots_on_city"
     t.index ["leader_id"], name: "index_lots_on_leader_id"
+    t.index ["seller_id"], name: "index_lots_on_seller_id"
     t.index ["status", "ends_at"], name: "index_lots_on_status_and_ends_at"
     t.index ["status", "starts_at"], name: "index_lots_on_status_and_starts_at"
+    t.index ["vin"], name: "index_lots_on_vin_open", unique: true, where: "(status = ANY (ARRAY[0, 1]))"
     t.check_constraint "bid_count >= 0", name: "lots_bid_count_non_negative"
     t.check_constraint "current_price_cents >= starting_price_cents", name: "lots_current_price_not_below_start"
     t.check_constraint "ends_at > starts_at", name: "lots_ends_after_start"
+    t.check_constraint "mileage >= 0", name: "lots_mileage_non_negative"
     t.check_constraint "starting_price_cents >= 0", name: "lots_starting_price_non_negative"
+    t.check_constraint "vin::text ~ '^[A-HJ-NPR-Z0-9]{17}$'::text", name: "lots_vin_format"
   end
 
   create_table "pending_registrations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -128,8 +137,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_151532) do
 
   add_foreign_key "bids", "lots"
   add_foreign_key "bids", "users"
-  add_foreign_key "cars", "users", column: "seller_id"
   add_foreign_key "lots", "cars"
   add_foreign_key "lots", "users", column: "leader_id"
+  add_foreign_key "lots", "users", column: "seller_id"
   add_foreign_key "refresh_sessions", "users"
 end
