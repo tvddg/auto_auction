@@ -9,6 +9,10 @@ module ApiErrors
     rescue_from ActiveRecord::RecordInvalid do |error|
       render_validation_error(error.record)
     end
+
+    rescue_from ActiveRecord::RecordNotFound do
+      render_error(:not_found, "not_found", "Ничего не найдено")
+    end
   end
 
   private
@@ -28,6 +32,11 @@ module ApiErrors
 
   def render_unauthorized(message = "Требуется авторизация")
     render_error(:unauthorized, "unauthorized", message)
+  end
+
+  # 403, а не 401: на 401 клиент пытается обновить токен и разлогинивает пользователя
+  def render_forbidden(message = "Недостаточно прав")
+    render_error(:forbidden, "forbidden", message)
   end
 
   def render_too_many_requests(message = "Слишком много запросов. Попробуйте позже")
