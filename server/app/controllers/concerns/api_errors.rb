@@ -17,9 +17,9 @@ module ApiErrors
 
   private
 
-  # Единый формат ошибок: { "error": { "code", "message", "details" } }
-  def render_error(status, code, message, details: nil)
-    payload = { code:, message: }
+  # Единый формат ошибок: { "error": { "code", "message", "details", ...extra } }
+  def render_error(status, code, message, details: nil, **extra)
+    payload = { code:, message:, **extra }
     payload[:details] = details if details.present?
 
     render json: { error: payload }, status:
