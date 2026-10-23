@@ -15,6 +15,11 @@ Rails.application.routes.draw do
         post "registration/resend", to: "registrations#resend"
         post "registration/confirm", to: "registrations#confirm"
       end
+
+      # Пути в единственном числе — как в контракте API
+      resources :cars, path: "car", only: %i[create show]
+      resources :lots, path: "lot", only: %i[index show create update destroy]
+      resources :bids, path: "bid", only: :create
     end
   end
 end
