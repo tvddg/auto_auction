@@ -2,6 +2,7 @@ import { Icon } from "@/shared/ui";
 import cl from "./Header.module.css";
 
 export function Header() {
+    
     return <header className={cl.layout}>
         <div className={cl.icon}>
             <Icon name="car" size={24}/>

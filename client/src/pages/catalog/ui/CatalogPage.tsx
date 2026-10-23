@@ -43,23 +43,26 @@ const mockLots: LotCardProps[] = [
 ]
 
 export function CatalogPage() {
-    return <main>
-        <div className={cl.headerTab}>
-            <Header />
-            <SearchField />
-            <LotCategories />
-            <LotFilters />
-            <div className={cl.listToolbar}>
-                <span className={cl.lotsCount}>{mockLots.length} лотов</span>
-                <LotSort />
+    return <>
+        <Header />
+        <main>
+            <div className={cl.headerTab}>
+                <SearchField />
+                <LotCategories />
+                <LotFilters />
+                <div className={cl.listToolbar}>
+                    <span className={cl.lotsCount}>{mockLots.length} лотов</span>
+                    <LotSort />
+                </div>
+                <div className={cl.separator} />
             </div>
-            <div className={cl.separator} />
-        </div>
 
-        <div className={cl.cardsGrid}>
-            <CardsGrid cards={mockLots} />
-        </div>
+            <div className={cl.cardsGrid}>
+                <CardsGrid cards={mockLots} />
+            </div>
 
-        <NavBar />
-    </main>
+            <NavBar />
+        </main>
+    </>
+
 }
