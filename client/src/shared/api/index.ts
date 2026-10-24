@@ -9,6 +9,6 @@ export {
 export type { ApiErrorBody, ApiErrorCode } from './api-error'
 export { authToken } from './auth-token'
 export { apiEndpoints } from './endpoints'
-export { apiRequest } from './http-client'
-export type { HttpMethod, RequestConfig } from './http-client'
+export { apiRequest, apiRequestWithHeaders } from './http-client'
+export type { ApiResponse, HttpMethod, RequestConfig } from './http-client'
 export { emitUnauthorized, onUnauthorized } from './unauthorized'

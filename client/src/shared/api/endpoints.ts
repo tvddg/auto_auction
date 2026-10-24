@@ -8,4 +8,7 @@ export const apiEndpoints = {
     logout: '/auth/logout',
     me: '/auth/me',
   },
+  lots: {
+    list: '/lot',
+  },
 } as const

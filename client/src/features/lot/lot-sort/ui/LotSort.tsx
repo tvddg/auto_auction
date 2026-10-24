@@ -1,7 +1,6 @@
 import { useSortStore, type SortKey, type SortOrder } from '../model/sort.store'
 import cl from './LotSort.module.css'
 
-// TODO: заглушка — выбор сортировки пока не реализован
 export function LotSort() {
     const sortStore = useSortStore();
 

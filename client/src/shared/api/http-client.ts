@@ -115,7 +115,15 @@ const parseResponse = async <T>(response: Response): Promise<T> => {
   })
 }
 
-export const apiRequest = async <T>(path: string, config: RequestConfig = {}): Promise<T> => {
+export type ApiResponse<T> = {
+  data: T
+  headers: Headers
+}
+
+export const apiRequest = async <T>(path: string, config: RequestConfig = {}): Promise<T> =>
+  (await apiRequestWithHeaders<T>(path, config)).data
+
+export const apiRequestWithHeaders = async <T>(path: string, config: RequestConfig = {}): Promise<ApiResponse<T>> => {
   let response = await sendRequest(path, config)
 
   const canRetry = response.status === 401 && config.withRefresh !== false && config.withAuth !== false
@@ -129,5 +137,5 @@ export const apiRequest = async <T>(path: string, config: RequestConfig = {}): P
     }
   }
 
-  return parseResponse<T>(response)
+  return { data: await parseResponse<T>(response), headers: response.headers }
 }

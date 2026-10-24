@@ -15,7 +15,7 @@ import cl from "./LotCard.module.css";
 export type LotCardProps = {
     id: string;
     title: string;
-    imageUrl: string;
+    imageUrl: string | null; // null
     shortInfo: {
         year: number;
         mileage: number;
@@ -31,7 +31,7 @@ export type LotCardProps = {
     status: 'upcoming';
     startDate: Date; // DateTime format
 } | {
-    status: 'sold';
+    status: 'sold' | 'unsold';
     dealDate: Date; // Date of the deal
 })
 
@@ -76,12 +76,15 @@ export function LotCard(props: LotCardProps) {
             footer = <span className={cl.start}>Старт в {formatTime(props.startDate)}</span>;
             break;
         case "sold":
-            badge = <span className={cn(cl.badge, cl.badgeSold)}>Продан</span>;
+        case "unsold":
+            badge = <span className={cn(cl.badge, cl.badgeSold)}>{props.status === "sold" ? "Продан" : "Не продан"}</span>;
             footer = <span>{formatDay(props.dealDate)} · {formatBets(betsAmount)}</span>;
             break;
     }
 
-    return <li className={cn(cl.item, props.status === "sold" && cl.sold)}>
+    const isFinished = props.status === "sold" || props.status === "unsold";
+
+    return <li className={cn(cl.item, isFinished && cl.sold)}>
         <article className={cl.card}>
             <div className={cl.media}>
                 {imageUrl && <img className={cl.image} src={imageUrl} alt={title} loading="lazy" />}
