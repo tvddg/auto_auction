@@ -286,7 +286,7 @@ paths:
             minimum: 0
         - name: q
           in: query
-          description: Поиск по марке, модели и комплектации без учёта регистра.
+          description: Поиск по марке, модели, комплектации и VIN (в том числе по части) без учёта регистра.
           schema:
             type: string
         - name: sort

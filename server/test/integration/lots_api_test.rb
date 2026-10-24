@@ -79,6 +79,14 @@ class LotsApiTest < ActionDispatch::IntegrationTest
     assert_equal [ lots(:camry_active).id ], ids
   end
 
+  test "поиск по VIN, в том числе по части и в нижнем регистре" do
+    get "/api/v1/lot", params: { q: "5yj3e1ea" }
+    assert_equal [ lots(:model_3_upcoming).id ], ids
+
+    get "/api/v1/lot", params: { q: lots(:camry_active).vin }
+    assert_equal lots(:camry_active, :camry_unsold).map(&:id).sort, ids.sort
+  end
+
   test "поиск по марке, модели и комплектации без учёта регистра" do
     get "/api/v1/lot", params: { q: "model 3" }
     assert_equal [ lots(:model_3_upcoming).id ], ids

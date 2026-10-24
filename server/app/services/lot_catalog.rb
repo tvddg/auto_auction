@@ -49,7 +49,10 @@ class LotCatalog
     scope = scope.where(cars: { year: ..@integers[:maxYear] }) if @integers[:maxYear]
     scope = scope.where(current_price_cents: @integers[:minPrice]..) if @integers[:minPrice]
     scope = scope.where(current_price_cents: ..@integers[:maxPrice]) if @integers[:maxPrice]
-    scope = scope.where("concat_ws(' ', cars.brand, cars.model, cars.trim) ILIKE ?", "%#{Lot.sanitize_sql_like(@query)}%") if @query
+    if @query
+      pattern = "%#{Lot.sanitize_sql_like(@query)}%"
+      scope = scope.where("concat_ws(' ', cars.brand, cars.model, cars.trim) ILIKE :pattern OR lots.vin ILIKE :pattern", pattern:)
+    end
     scope
   end
 
