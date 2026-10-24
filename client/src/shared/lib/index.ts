@@ -8,5 +8,7 @@ export {
   PHONE_PLACEHOLDER,
   toE164,
 } from './phone'
+export { buildReturnToState, DEFAULT_RETURN_TO, getReturnTo } from './return-to'
+export type { ReturnToState } from './return-to'
 export { formatDuration, useCountdown } from './use-countdown'
 export { isEmailValid, isPasswordValid, MIN_PASSWORD_LENGTH } from './validation'
