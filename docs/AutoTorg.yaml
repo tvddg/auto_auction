@@ -1,0 +1,1021 @@
+openapi: 3.0.0
+info:
+  version: '1.1'
+  title: AutoTorg
+  description: |
+    API аукциона автомобилей.
+
+    Соглашения:
+    - Все поля запросов и ответов — в camelCase.
+    - Значения перечислений (статусы, кузов, КПП и т. д.) передаются строками.
+    - Суммы — целые числа в копейках.
+    - Даты — строки ISO 8601.
+    - Ошибки всегда приходят в едином формате `{ "error": { "code", "message", "details"? } }`
+      (см. схему `Error`). `code` — машиночитаемый код в snake_case, `details` — ошибки по полям.
+    - Авторизация — заголовок `Authorization: Bearer <accessToken>`; токен выдают эндпоинты `/auth/*`.
+servers:
+  - url: 'http://localhost:3000/api/v1'
+    description: Rails напрямую
+  - url: 'http://localhost:5173/api/v1'
+    description: Через dev-прокси клиента
+tags:
+  - name: Cars
+    description: Справочник комплектаций автомобилей
+  - name: Lots
+    description: Лоты аукциона
+  - name: Bids
+    description: Ставки
+  - name: Dev
+    description: Только для разработки — в production этих эндпоинтов нет
+paths:
+  /dev/deposit:
+    post:
+      tags: [Dev]
+      summary: Top Up Deposit (dev only)
+      description: |
+        Временное пополнение депозита текущего пользователя, пока нет настоящих платежей.
+        Сумма прибавляется к депозиту. В production маршрут не объявлен.
+      operationId: post-dev-deposit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amountCents]
+              properties:
+                amountCents:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                  maximum: 100000000000
+            examples:
+              Top Up:
+                value:
+                  amountCents: 1000000000
+      responses:
+        '200':
+          description: Deposit Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [depositCents]
+                properties:
+                  depositCents:
+                    type: integer
+                    format: int64
+                    description: Новый баланс депозита, в копейках.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /car:
+    post:
+      tags: [Cars]
+      summary: Create New Car
+      description: |
+        Добавляет комплектацию в справочник. Экземплярные данные (VIN, пробег, цвет, город, продавец)
+        указываются при создании лота, а не здесь.
+
+        Комплектация считается уже существующей, если совпадают brand, model, trim (в том числе пустой),
+        year, bodyType, transmission, driveType, fuelType, horsePower и engineVolumeCc (в том числе пустой).
+        Описание на сравнение не влияет. В этом случае возвращается 409 с `existingId`.
+      operationId: post-car
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarInput'
+            examples:
+              Petrol Car:
+                value:
+                  brand: Toyota
+                  model: Camry
+                  trim: Prestige
+                  year: 2019
+                  bodyType: sedan
+                  transmission: automatic
+                  driveType: fwd
+                  fuelType: petrol
+                  horsePower: 181
+                  engineVolumeCc: 2487
+                  description: Седан бизнес-класса.
+              Electric Car:
+                value:
+                  brand: Tesla
+                  model: Model 3
+                  year: 2021
+                  bodyType: sedan
+                  transmission: automatic
+                  driveType: awd
+                  fuelType: electric
+                  horsePower: 351
+      responses:
+        '201':
+          description: Car Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Similar car already exists (`car_exists`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Car Exists:
+                  value:
+                    error:
+                      code: car_exists
+                      message: Такая машина уже есть в справочнике
+                      existingId: 2f1c6b8e-6a3b-4c55-9d0e-6a1f3c2b7e41
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  '/car/{carId}':
+    get:
+      tags: [Cars]
+      summary: Get Car Info By Car ID
+      operationId: get-car-carId
+      parameters:
+        - $ref: '#/components/parameters/CarId'
+      responses:
+        '200':
+          description: Car Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /lot:
+    post:
+      tags: [Lots]
+      summary: Create New Lot
+      description: |
+        Выставляет машину на аукцион. Продавцом становится текущий пользователь, лот создаётся
+        в статусе `upcoming`, текущая цена равна стартовой. Поля `userId`, `status`,
+        `currentPriceCents` и `bidCount` из запроса игнорируются.
+      operationId: post-lot
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LotInput'
+            examples:
+              New Lot:
+                value:
+                  carId: 2f1c6b8e-6a3b-4c55-9d0e-6a1f3c2b7e41
+                  vin: JTNB11HK103456789
+                  mileage: 87000
+                  color: Черный
+                  city: Москва
+                  startingPriceCents: 150000000
+                  startsAt: '2026-10-25T10:00:00Z'
+                  endsAt: '2026-10-28T20:00:00Z'
+      responses:
+        '201':
+          description: Lot Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lot'
+              examples:
+                New Lot:
+                  value:
+                    id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                    carId: 2f1c6b8e-6a3b-4c55-9d0e-6a1f3c2b7e41
+                    userId: 9b0d4f1a-1c2e-4b8a-a0f3-5d6e7f8a9b0c
+                    vin: JTNB11HK103456789
+                    mileage: 87000
+                    color: Черный
+                    city: Москва
+                    status: upcoming
+                    startingPriceCents: 150000000
+                    currentPriceCents: 150000000
+                    startsAt: '2026-10-25T10:00:00Z'
+                    endsAt: '2026-10-28T20:00:00Z'
+                    bidCount: 0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Машина с этим VIN уже в открытом лоте (`lot_already_published`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    get:
+      tags: [Lots]
+      summary: Get Lots List
+      description: |
+        Публичный каталог лотов с фильтрами, поиском, сортировкой и пагинацией.
+        Снятые с торгов лоты (`cancelled`) в каталог не попадают.
+
+        Статус открытого лота определяется временем: до `startsAt` — `upcoming`,
+        между `startsAt` и `endsAt` — `active`, после `endsAt` — `sold`, если ставки были, иначе `unsold`.
+
+        Пустой результат — `200` с пустым массивом. Общее число лотов по фильтрам — в заголовке `X-Total-Count`.
+      operationId: get-lot-list
+      parameters:
+        - name: limit
+          in: query
+          description: Размер страницы.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: page
+          in: query
+          description: Номер страницы, начиная с 1.
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: status
+          in: query
+          description: Фаза лота. `finished` — `sold` и `unsold` вместе. Без параметра — все лоты, кроме снятых.
+          schema:
+            type: string
+            enum: [upcoming, active, finished, sold, unsold]
+        - name: brands
+          in: query
+          description: 'Марки без учёта регистра: `brands[]=Toyota&brands[]=BMW` или `brands=Toyota,BMW`.'
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: minYear
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: maxYear
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: minPrice
+          in: query
+          description: Минимальная текущая цена, в копейках.
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - name: maxPrice
+          in: query
+          description: Максимальная текущая цена, в копейках.
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - name: q
+          in: query
+          description: Поиск по марке, модели и комплектации без учёта регистра.
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: '`date` — по началу торгов, `cost` — по текущей цене, `year` — по году выпуска.'
+          schema:
+            type: string
+            enum: [date, cost, year]
+            default: date
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Total-Count:
+              description: Число лотов по фильтрам без учёта пагинации.
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LotCard'
+              examples:
+                Get Lots List:
+                  value:
+                    - status: active
+                      id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                      title: Toyota Camry Prestige
+                      imageUrl: null
+                      shortInfo:
+                        year: 2019
+                        mileage: 87000
+                        gear: АКПП
+                      price: 165000000
+                      betsAmount: 3
+                      inFeatured: false
+                      remainingTime: 7200000
+                    - status: upcoming
+                      id: 8c1e2d3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f
+                      title: Tesla Model 3
+                      imageUrl: null
+                      shortInfo:
+                        year: 2021
+                        mileage: 42000
+                        gear: АКПП
+                      price: 280000000
+                      betsAmount: 0
+                      inFeatured: false
+                      startDate: '2026-10-25T10:00:00Z'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  '/lot/{lotId}':
+    get:
+      tags: [Lots]
+      summary: Get Lot Info by Lot ID
+      description: Публичная страница лота. Открывается для лота в любом статусе, включая снятые.
+      operationId: get-lot-lotId
+      parameters:
+        - $ref: '#/components/parameters/LotId'
+      responses:
+        '200':
+          description: Lot Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LotDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Lots]
+      summary: Update Lot
+      description: |
+        Изменяет лот, торги по которому ещё не начались (фаза `upcoming`). Доступно только продавцу.
+        При изменении `startingPriceCents` текущая цена меняется вместе с ней.
+        Машину лота (`carId`) менять нельзя — запрос с этим полем отклоняется с 422.
+        VIN, пробег, цвет и город после создания не меняются.
+      operationId: patch-lot-lotId
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/LotId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LotUpdate'
+      responses:
+        '200':
+          description: Lot Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Торги уже начались или лот закрыт (`lot_not_editable`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Lots]
+      summary: Delete Lot
+      description: |
+        Доступно только продавцу.
+        - Лот без ставок удаляется.
+        - Лот со ставками (в том числе отклонёнными) в фазе `upcoming` или `active` снимается с торгов — статус `cancelled`.
+        - Завершённый или уже снятый лот со ставками — 409.
+      operationId: delete-lot-lotId
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/LotId'
+      responses:
+        '204':
+          description: Lot Deleted or Cancelled
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Лот уже завершён или снят (`lot_finished`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /bid:
+    post:
+      tags: [Bids]
+      summary: Create New Bid
+      description: |
+        Делает ставку. Отклонённые ставки тоже сохраняются в журнал, а клиенту возвращается
+        ошибка с кодом причины (`error.code` совпадает с `rejectionReason`).
+
+        Правила проверяются по порядку:
+        1. `own_lot` (403) — ставка на свой лот.
+        2. `lot_not_active` (405) — торги ещё не начались.
+        3. `lot_ended` (405) — торги завершены или лот снят.
+        4. `already_leading` (409) — текущая лидирующая ставка уже принадлежит пользователю.
+        5. `amount_too_low` (400) — сумма меньше текущей цены плюс шаг ставки для этой цены.
+        6. `insufficient_deposit` (400) — депозит пользователя меньше суммы ставки.
+
+        Идемпотентность: повтор запроса с тем же ключом возвращает уже записанную ставку и ничего не меняет
+        (принятая — 200, отклонённая — та же ошибка). Тот же ключ для другого лота или суммы — 422.
+      operationId: post-bid
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BidInput'
+            examples:
+              New Bid:
+                value:
+                  lotId: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                  amountCents: 167500000
+      responses:
+        '201':
+          description: Bid Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bid'
+              examples:
+                Accepted Bid:
+                  value:
+                    id: 0f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a
+                    lotId: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                    userId: 9b0d4f1a-1c2e-4b8a-a0f3-5d6e7f8a9b0c
+                    amountCents: 167500000
+                    status: accepted
+                    rejectionReason: null
+                    idempotencyKey: 3c9d2e1f-0a4b-4c8d-9e7f-1a2b3c4d5e6f
+                    seq: 4
+                    createdAt: '2026-10-23T12:00:00Z'
+        '200':
+          description: Повтор запроса с тем же ключом — уже принятая ставка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bid'
+        '400':
+          description: |
+            `idempotency_key_required` — нет заголовка или он не UUID;
+            `amount_too_low`; `insufficient_deposit`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Amount Too Low:
+                  value:
+                    error:
+                      code: amount_too_low
+                      message: Ставка меньше текущей цены с учётом шага
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: '`own_lot`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          description: '`lot_not_active`, `lot_ended`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: '`already_leading`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: '`validation_error` — нет `lotId` или некорректная `amountCents`; `idempotency_key_reused`.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Шаг ставки для текущей цены не настроен (`bid_steps_not_configured`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Access-токен из `/auth/login`, `/auth/refresh` или `/auth/registration/confirm`.
+  parameters:
+    CarId:
+      name: carId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    LotId:
+      name: lotId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: UUID, который клиент генерирует для каждой новой ставки и повторяет при переотправке. Заголовок `IdempotencyKey` тоже принимается.
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Unauthorized:
+      description: Нет токена или он недействителен (`unauthorized`)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Действие доступно только продавцу лота (`forbidden`)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Ресурс не найден (`not_found`)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Ошибка валидации (`validation_error`); `details` — ошибки по полям
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            Validation Error:
+              value:
+                error:
+                  code: validation_error
+                  message: VIN — 17 символов, латиница и цифры без I, O, Q
+                  details:
+                    vin:
+                      - VIN — 17 символов, латиница и цифры без I, O, Q
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Машиночитаемый код ошибки в snake_case.
+            message:
+              type: string
+              description: Текст для пользователя.
+            details:
+              type: object
+              description: Ошибки по полям, ключи — имена полей в camelCase.
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+            existingId:
+              type: string
+              format: uuid
+              description: Только для `car_exists` — id существующей машины.
+    BodyType:
+      type: string
+      enum: [sedan, hatchback, liftback, wagon, coupe, convertible, suv, minivan, pickup, van]
+    Transmission:
+      type: string
+      enum: [manual, automatic, robot, cvt]
+    DriveType:
+      type: string
+      enum: [fwd, rwd, awd]
+    FuelType:
+      type: string
+      enum: [petrol, diesel, hybrid, electric, lpg]
+    LotStatus:
+      type: string
+      description: |
+        Фаза лота. Для открытого лота вычисляется по времени (см. GET /lot);
+        `cancelled` — лот снят продавцом.
+      enum: [upcoming, active, sold, unsold, cancelled]
+    CarInput:
+      type: object
+      description: '`engineVolumeCc` обязателен для всех `fuelType`, кроме `electric`.'
+      required: [brand, model, year, bodyType, transmission, driveType, fuelType, horsePower]
+      properties:
+        brand:
+          type: string
+        model:
+          type: string
+        trim:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        bodyType:
+          $ref: '#/components/schemas/BodyType'
+        transmission:
+          $ref: '#/components/schemas/Transmission'
+        driveType:
+          $ref: '#/components/schemas/DriveType'
+        fuelType:
+          $ref: '#/components/schemas/FuelType'
+        horsePower:
+          type: integer
+          minimum: 1
+          maximum: 2000
+        engineVolumeCc:
+          type: integer
+          nullable: true
+          minimum: 500
+          maximum: 10000
+        description:
+          type: string
+          nullable: true
+    Car:
+      type: object
+      required: [id, brand, model, trim, year, bodyType, transmission, driveType, fuelType, horsePower, engineVolumeCc, description]
+      properties:
+        id:
+          type: string
+          format: uuid
+        brand:
+          type: string
+        model:
+          type: string
+        trim:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        bodyType:
+          $ref: '#/components/schemas/BodyType'
+        transmission:
+          $ref: '#/components/schemas/Transmission'
+        driveType:
+          $ref: '#/components/schemas/DriveType'
+        fuelType:
+          $ref: '#/components/schemas/FuelType'
+        horsePower:
+          type: integer
+          minimum: 1
+          maximum: 2000
+        engineVolumeCc:
+          type: integer
+          nullable: true
+          minimum: 500
+          maximum: 10000
+        description:
+          type: string
+          nullable: true
+    LotInput:
+      type: object
+      required: [carId, vin, mileage, color, city, startingPriceCents, startsAt, endsAt]
+      properties:
+        carId:
+          type: string
+          format: uuid
+        vin:
+          type: string
+          description: Приводится к верхнему регистру, пробелы по краям отбрасываются.
+          pattern: '^[A-HJ-NPR-Z0-9]{17}$'
+          minLength: 17
+          maxLength: 17
+        mileage:
+          type: integer
+          minimum: 0
+        color:
+          type: string
+        city:
+          type: string
+        startingPriceCents:
+          type: integer
+          format: int64
+          minimum: 0
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          description: Должно быть позже `startsAt`.
+    LotUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        startingPriceCents:
+          type: integer
+          format: int64
+          minimum: 0
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+    Lot:
+      type: object
+      required: [id, carId, userId, vin, mileage, color, city, status, startingPriceCents, currentPriceCents, startsAt, endsAt, bidCount]
+      properties:
+        id:
+          type: string
+          format: uuid
+        carId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+          description: Продавец.
+        vin:
+          type: string
+          pattern: '^[A-HJ-NPR-Z0-9]{17}$'
+        mileage:
+          type: integer
+          minimum: 0
+        color:
+          type: string
+        city:
+          type: string
+        status:
+          $ref: '#/components/schemas/LotStatus'
+        startingPriceCents:
+          type: integer
+          format: int64
+          minimum: 0
+        currentPriceCents:
+          type: integer
+          format: int64
+          minimum: 0
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        bidCount:
+          type: integer
+          minimum: 0
+    LotCardBase:
+      type: object
+      required: [status, id, title, imageUrl, shortInfo, price, betsAmount, inFeatured]
+      properties:
+        status:
+          type: string
+          enum: [upcoming, active, sold, unsold]
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          description: Марка, модель и комплектация через пробел.
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: Пока всегда null — появится вместе с хранением фото.
+        shortInfo:
+          type: object
+          required: [year, mileage, gear]
+          properties:
+            year:
+              type: integer
+            mileage:
+              type: integer
+              minimum: 0
+            gear:
+              type: string
+              description: manual — МКПП, automatic — АКПП, robot — РКПП, cvt — ВКПП.
+              enum: [АКПП, МКПП, РКПП, ВКПП]
+        price:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Текущая цена, в копейках.
+        betsAmount:
+          type: integer
+          minimum: 0
+        inFeatured:
+          type: boolean
+          description: Пока всегда false — появится вместе с избранным.
+    ActiveLotCard:
+      allOf:
+        - $ref: '#/components/schemas/LotCardBase'
+        - type: object
+          required: [remainingTime]
+          properties:
+            remainingTime:
+              type: integer
+              format: int64
+              minimum: 0
+              description: Миллисекунды до окончания торгов.
+    UpcomingLotCard:
+      allOf:
+        - $ref: '#/components/schemas/LotCardBase'
+        - type: object
+          required: [startDate]
+          properties:
+            startDate:
+              type: string
+              format: date-time
+    FinishedLotCard:
+      allOf:
+        - $ref: '#/components/schemas/LotCardBase'
+        - type: object
+          required: [dealDate]
+          properties:
+            dealDate:
+              type: string
+              format: date-time
+              description: Время окончания торгов.
+    LotCard:
+      oneOf:
+        - $ref: '#/components/schemas/ActiveLotCard'
+        - $ref: '#/components/schemas/UpcomingLotCard'
+        - $ref: '#/components/schemas/FinishedLotCard'
+      discriminator:
+        propertyName: status
+        mapping:
+          active: '#/components/schemas/ActiveLotCard'
+          upcoming: '#/components/schemas/UpcomingLotCard'
+          sold: '#/components/schemas/FinishedLotCard'
+          unsold: '#/components/schemas/FinishedLotCard'
+    LotDetail:
+      type: object
+      required: [id, carInfo, sellerInfo, status, startingPrice, currentPrice, startsAt, endsAt, bidCount]
+      properties:
+        id:
+          type: string
+          format: uuid
+        carInfo:
+          type: object
+          required: [brand, model, trim, color, year, bodyType, vin, mileage, transmission, driveType, fuelType, horsePower, engineVolume, city, description]
+          properties:
+            brand:
+              type: string
+            model:
+              type: string
+            trim:
+              type: string
+              nullable: true
+            color:
+              type: string
+            year:
+              type: integer
+              minimum: 1900
+              maximum: 2100
+            bodyType:
+              $ref: '#/components/schemas/BodyType'
+            vin:
+              type: string
+              pattern: '^[A-HJ-NPR-Z0-9]{17}$'
+            mileage:
+              type: integer
+              minimum: 0
+            transmission:
+              $ref: '#/components/schemas/Transmission'
+            driveType:
+              $ref: '#/components/schemas/DriveType'
+            fuelType:
+              $ref: '#/components/schemas/FuelType'
+            horsePower:
+              type: integer
+              minimum: 1
+              maximum: 2000
+            engineVolume:
+              type: integer
+              nullable: true
+              minimum: 500
+              maximum: 10000
+              description: Объём двигателя, см³. null у электромобилей.
+            city:
+              type: string
+            description:
+              type: string
+              nullable: true
+        sellerInfo:
+          type: object
+          description: Страница публичная, поэтому контакты продавца не передаются.
+          required: [name]
+          properties:
+            name:
+              type: string
+              nullable: true
+        status:
+          $ref: '#/components/schemas/LotStatus'
+        startingPrice:
+          type: integer
+          format: int64
+          minimum: 0
+          description: В копейках.
+        currentPrice:
+          type: integer
+          format: int64
+          minimum: 0
+          description: В копейках.
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        bidCount:
+          type: integer
+          minimum: 0
+    BidInput:
+      type: object
+      required: [lotId, amountCents]
+      properties:
+        lotId:
+          type: string
+          format: uuid
+        amountCents:
+          type: integer
+          format: int64
+          minimum: 1
+    Bid:
+      type: object
+      required: [id, lotId, userId, amountCents, status, rejectionReason, idempotencyKey, seq, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        lotId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        amountCents:
+          type: integer
+          format: int64
+          minimum: 1
+        status:
+          type: string
+          enum: [accepted, rejected]
+        rejectionReason:
+          type: string
+          nullable: true
+          description: Заполнена только у отклонённой ставки.
+          enum: [lot_not_active, lot_ended, amount_too_low, own_lot, already_leading, insufficient_deposit, null]
+        idempotencyKey:
+          type: string
+          format: uuid
+        seq:
+          type: integer
+          nullable: true
+          minimum: 1
+          description: Порядковый номер принятой ставки в лоте; у отклонённой — null.
+        createdAt:
+          type: string
+          format: date-time

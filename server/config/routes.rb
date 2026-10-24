@@ -20,6 +20,13 @@ Rails.application.routes.draw do
       resources :cars, path: "car", only: %i[create show]
       resources :lots, path: "lot", only: %i[index show create update destroy]
       resources :bids, path: "bid", only: :create
+
+      # Только для разработки: пополнение депозита, пока нет настоящих платежей
+      unless Rails.env.production?
+        namespace :dev do
+          post "deposit", to: "deposits#create"
+        end
+      end
     end
   end
 end
