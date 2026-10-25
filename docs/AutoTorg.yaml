@@ -473,6 +473,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /photo:
+    post:
+      tags: [Lots]
+      summary: Upload Lot Photo
+      description: |
+        Загружает фото для черновика лота. Файл сохраняется сразу, но к лоту ещё не привязан:
+        клиент хранит `signedId` и передаёт упорядоченный список в `POST /lot` (`photoIds`).
+        Тип определяется по содержимому файла (JPEG, PNG, WebP), до 15 МБ.
+        Непривязанные файлы удаляются через 30 дней.
+      operationId: post-photo
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Photo Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadedPhoto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          description: Больше 60 загрузок в минуту (`too_many_requests`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /bid:
     post:
       tags: [Bids]
@@ -792,6 +832,14 @@ components:
           type: string
           format: date-time
           description: Должно быть позже `startsAt`.
+        photoIds:
+          type: array
+          maxItems: 20
+          description: |
+            `signedId` из `POST /photo` в нужном порядке; первое фото — обложка.
+            Принимаются только свои и ещё не привязанные файлы, иначе 422 с `details.photoIds`.
+          items:
+            type: string
     LotUpdate:
       type: object
       minProperties: 1
@@ -808,7 +856,7 @@ components:
           format: date-time
     Lot:
       type: object
-      required: [id, carId, userId, vin, mileage, color, city, status, startingPriceCents, currentPriceCents, startsAt, endsAt, bidCount]
+      required: [id, carId, userId, vin, mileage, color, city, status, startingPriceCents, currentPriceCents, startsAt, endsAt, bidCount, photos]
       properties:
         id:
           type: string
@@ -849,6 +897,10 @@ components:
         bidCount:
           type: integer
           minimum: 0
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/LotPhoto'
     LotCardBase:
       type: object
       required: [status, id, title, imageUrl, shortInfo, price, betsAmount, inFeatured]
@@ -866,7 +918,7 @@ components:
           type: string
           format: uri
           nullable: true
-          description: Пока всегда null — появится вместе с хранением фото.
+          description: Относительный адрес превью первого фото лота; null, если фото нет.
         shortInfo:
           type: object
           required: [year, mileage, gear]
@@ -935,7 +987,7 @@ components:
           unsold: '#/components/schemas/FinishedLotCard'
     LotDetail:
       type: object
-      required: [id, carInfo, sellerInfo, status, startingPrice, currentPrice, startsAt, endsAt, bidCount]
+      required: [id, carInfo, sellerInfo, status, startingPrice, currentPrice, startsAt, endsAt, bidCount, photos]
       properties:
         id:
           type: string
@@ -1015,6 +1067,34 @@ components:
         bidCount:
           type: integer
           minimum: 0
+        photos:
+          type: array
+          description: Фото по порядку, первое — обложка.
+          items:
+            $ref: '#/components/schemas/LotPhoto'
+    UploadedPhoto:
+      type: object
+      required: [signedId, url]
+      properties:
+        signedId:
+          type: string
+          description: Идентификатор для `photoIds` в `POST /lot`.
+        url:
+          type: string
+          description: Относительный адрес превью (~640px).
+    LotPhoto:
+      type: object
+      required: [id, url, thumbUrl]
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          description: Относительный адрес фото для просмотра (до 1600px).
+        thumbUrl:
+          type: string
+          description: Относительный адрес превью (до 640px).
     BidInput:
       type: object
       required: [lotId, amountCents]

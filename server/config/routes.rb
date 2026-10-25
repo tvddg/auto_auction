@@ -20,6 +20,8 @@ Rails.application.routes.draw do
       resources :cars, path: "car", only: %i[index create show]
       resources :lots, path: "lot", only: %i[index show create update destroy]
       resources :bids, path: "bid", only: :create
+      # Фото для черновика лота: файл загружается сразу, к лоту привязывается в POST /lot
+      resources :photos, path: "photo", only: :create
 
       # Только для разработки: пополнение депозита, пока нет настоящих платежей
       unless Rails.env.production?

@@ -10,9 +10,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_100100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_25_141900) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.uuid "record_id", null: false
+    t.string "record_type", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "bid_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -61,6 +89,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_100100) do
     t.check_constraint "engine_volume_cc >= 500 AND engine_volume_cc <= 10000", name: "cars_engine_volume_range"
     t.check_constraint "horse_power >= 1 AND horse_power <= 2000", name: "cars_horse_power_range"
     t.check_constraint "year >= 1900 AND year <= 2100", name: "cars_year_range"
+  end
+
+  create_table "lot_photos", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "lot_id", null: false
+    t.integer "position", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lot_id", "position"], name: "index_lot_photos_on_lot_id_and_position", unique: true
+    t.check_constraint "\"position\" >= 0", name: "lot_photos_position_non_negative"
   end
 
   create_table "lots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -135,8 +172,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_100100) do
     t.index ["phone"], name: "index_users_on_phone", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bids", "lots"
   add_foreign_key "bids", "users"
+  add_foreign_key "lot_photos", "lots", on_delete: :cascade
   add_foreign_key "lots", "cars"
   add_foreign_key "lots", "users", column: "leader_id"
   add_foreign_key "lots", "users", column: "seller_id"

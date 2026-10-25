@@ -6,6 +6,8 @@ class Lot < ApplicationRecord
   belongs_to :seller, class_name: "User"
   belongs_to :leader, class_name: "User", optional: true
   has_many :bids, dependent: :restrict_with_error
+  # Порядок фото — по position; первая — обложка. destroy, а не delete: у фото колбэк удаляет файл
+  has_many :photos, -> { order(:position) }, class_name: "LotPhoto", dependent: :destroy, inverse_of: :lot
 
   # Номера open-статусов (0, 1) зашиты в частичный уникальный индекс по vin
   enum :status, { upcoming: 0, active: 1, sold: 2, unsold: 3, cancelled: 4 }, validate: true
@@ -39,6 +41,7 @@ class Lot < ApplicationRecord
   validates :bid_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :starts_at, :ends_at, presence: true
   validates :leader, presence: true, if: -> { bid_count.to_i.positive? }
+  validates :photos, length: { maximum: LotPhoto::MAX_PER_LOT, message: "не больше #{LotPhoto::MAX_PER_LOT}" }
 
   validate :current_price_not_below_start
   validate :ends_after_start

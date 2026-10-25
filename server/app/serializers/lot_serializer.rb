@@ -18,7 +18,8 @@ module LotSerializer
       currentPriceCents: lot.current_price_cents,
       startsAt: lot.starts_at.iso8601,
       endsAt: lot.ends_at.iso8601,
-      bidCount: lot.bid_count
+      bidCount: lot.bid_count,
+      photos: photos(lot)
     }
   end
 
@@ -28,8 +29,8 @@ module LotSerializer
       status: phase,
       id: lot.id,
       title: lot.car.title,
-      # Фото и избранное появятся вместе с Active Storage и FeaturedItems
-      imageUrl: nil,
+      # Обложка — первое фото; избранное появится вместе с FeaturedItems
+      imageUrl: lot.photos.first&.then { |photo| PhotoPaths.card(photo.image) },
       shortInfo: { year: lot.car.year, mileage: lot.mileage, gear: GEARS[lot.car.transmission] },
       price: lot.current_price_cents,
       betsAmount: lot.bid_count,
@@ -73,7 +74,15 @@ module LotSerializer
       currentPrice: lot.current_price_cents,
       startsAt: lot.starts_at.iso8601,
       endsAt: lot.ends_at.iso8601,
-      bidCount: lot.bid_count
+      bidCount: lot.bid_count,
+      photos: photos(lot)
     }
+  end
+
+  # Фото по порядку: url — для просмотра, thumbUrl — для миниатюр и карточек
+  def photos(lot)
+    lot.photos.map do |photo|
+      { id: photo.id, url: PhotoPaths.full(photo.image), thumbUrl: PhotoPaths.card(photo.image) }
+    end
   end
 end

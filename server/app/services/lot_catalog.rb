@@ -31,7 +31,8 @@ class LotCatalog
     scope = filtered
 
     Page.new(
-      lots: scope.includes(:car)
+      # Фото подгружаем заранее: без этого обложка каждой карточки — отдельные запросы (N+1)
+      lots: scope.includes(:car, photos: { image_attachment: :blob })
         .order(Arel.sql("#{SORT_COLUMNS.fetch(@sort)} #{@order.upcase}"), "lots.id")
         .limit(@limit)
         .offset((@page - 1) * @limit),

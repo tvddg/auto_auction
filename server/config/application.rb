@@ -31,5 +31,17 @@ module Server
 
     # Refresh-токен живёт в httpOnly-cookie, поэтому cookies возвращаем в стек.
     config.middleware.use ActionDispatch::Cookies
+
+    # Во всех таблицах первичные ключи — uuid. Генераторы (в том числе миграция Active Storage)
+    # должны делать так же, иначе active_storage_attachments.record_id станет bigint и не сможет
+    # ссылаться на записи с uuid.
+    config.generators do |generator|
+      generator.orm :active_record, primary_key_type: :uuid
+    end
+
+    # Файлы и превью Active Storage отдаются под /api, чтобы их пропускал dev-прокси клиента
+    # (он проксирует только /api) и всё API жило под одним префиксом.
+    config.active_storage.routes_prefix = "/api/v1/storage"
+    config.active_storage.variant_processor = :vips
   end
 end

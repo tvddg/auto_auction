@@ -9,7 +9,7 @@ module Api
       before_action :authenticate!, only: %i[create update destroy]
       before_action :find_managed_lot, only: %i[update destroy]
 
-      rescue_from LotCatalog::InvalidParams do |error|
+      rescue_from LotCatalog::InvalidParams, LotPhotoBlobs::Invalid do |error|
         render_error(:unprocessable_content, "validation_error", error.message, details: error.details)
       end
 
@@ -25,7 +25,7 @@ module Api
 
       # GET /api/v1/lot/:id
       def show
-        render json: LotSerializer.detail(Lot.includes(:car, :seller).find(params[:id]))
+        render json: LotSerializer.detail(Lot.includes(:car, :seller, photos: { image_attachment: :blob }).find(params[:id]))
       end
 
       # POST /api/v1/lot
@@ -33,7 +33,15 @@ module Api
         lot = Lot.new(lot_attributes(CREATE_FIELDS).merge(seller: current_user, status: :upcoming))
         return render_already_published if lot.vin.present? && Lot.open_lots.exists?(vin: lot.vin)
 
-        lot.save!
+        # Фото — упорядоченный список signed_id файлов, загруженных заранее через POST /photo
+        blobs = LotPhotoBlobs.call(params[:photoIds], user: current_user)
+
+        # Лот и его фото — одной транзакцией: если что-то не сохранилось, не останется лота без фото
+        Lot.transaction do
+          lot.save!
+          blobs.each_with_index { |blob, position| lot.photos.create!(position:, image: blob) }
+        end
+
         render json: LotSerializer.call(lot), status: :created
       rescue ActiveRecord::RecordNotUnique
         # Тот же VIN выставили параллельно, между проверкой и вставкой
