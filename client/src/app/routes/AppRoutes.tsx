@@ -14,6 +14,7 @@ import {
     ReviewStep,
 } from "@/pages/new-lot";
 import { NotFoundPage } from "@/pages/not-found";
+import { ProfilePage } from "@/pages/profile";
 import { getBackgroundLocation, NavigateKeepingState } from "@/shared/lib";
 
 import { RequireAuth } from "./RequireAuth";
@@ -44,10 +45,10 @@ export function AppRoutes() {
             <Route path="lot/:lotId" element={ <LotPage /> }/>
 
             <Route element={ <RequireAuth /> }>
-                {/* TODO: страниц разделов пока нет — после входа показываем 404 */}
+                {/* TODO: страниц «Ставки» и «Мои лоты» пока нет — после входа показываем 404 */}
                 <Route path="bets" element={ <NotFoundPage /> }/>
                 <Route path="my-lots" element={ <NotFoundPage /> }/>
-                <Route path="profile" element={ <NotFoundPage /> }/>
+                <Route path="profile" element={ <ProfilePage /> }/>
             </Route>
 
             <Route path="*" element={ <NotFoundPage /> }/>
