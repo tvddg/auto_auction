@@ -35,9 +35,10 @@ class AuthFlowTest < ActionDispatch::IntegrationTest
     assert cookies[:refresh_token].present?
     assert_equal 0, PendingRegistration.count
 
-    # Токен пускает в /me
+    # Токен пускает в /me; у нового пользователя депозит нулевой
     get "/api/v1/auth/me", headers: bearer(body["accessToken"])
     assert_response :success
+    assert_equal 0, response.parsed_body["depositCents"]
     assert_equal EMAIL, response.parsed_body["email"]
 
     # Вход по email и паролю

@@ -9,6 +9,8 @@ module UserSerializer
       phone: user.phone,
       name: user.name,
       phoneVerified: user.phone_verified?,
+      # Депозит: ставка принимается, только если он покрывает всю её сумму. В копейках
+      depositCents: user.deposit_cents,
       createdAt: user.created_at.iso8601
     }
   end
