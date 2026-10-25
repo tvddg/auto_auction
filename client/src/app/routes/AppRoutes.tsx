@@ -1,6 +1,7 @@
 import { matchPath, Route, Routes, Navigate, useLocation } from "react-router";
 import { AuthPage } from "@/pages/auth";
 import { CatalogPage } from "@/pages/catalog";
+import { LotPage } from "@/pages/lot";
 import {
     CarCreateStep,
     CarPickStep,
@@ -40,6 +41,7 @@ export function AppRoutes() {
             <Route index element={ <Navigate to="catalog" replace /> }/>
             <Route path="auth" element={ <AuthPage /> }/>
             <Route path="catalog" element={ <CatalogPage /> }/>
+            <Route path="lot/:lotId" element={ <LotPage /> }/>
 
             <Route element={ <RequireAuth /> }>
                 {/* TODO: страниц разделов пока нет — после входа показываем 404 */}

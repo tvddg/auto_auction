@@ -1,0 +1,118 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.step {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.quick {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.quickButton {
+  min-height: var(--control-height-lg);
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  background-color: var(--color-surface);
+  font: inherit;
+  font-weight: 800;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.quickButton:hover {
+  background-color: var(--color-surface-strong);
+}
+
+.quickActive {
+  border-color: var(--color-accent);
+}
+
+/* Поле суммы: крупное число и красная линия снизу, как в макете */
+.amount {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-bottom: 3px solid var(--color-accent);
+  background-color: var(--color-surface);
+  cursor: text;
+}
+
+.amountInvalid {
+  border-bottom-color: var(--color-danger);
+}
+
+.amountInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.currency {
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+}
+
+.pen {
+  margin-left: auto;
+  color: var(--color-text-secondary);
+}
+
+/*
+ * Кнопка во всю ширину: подпись слева, молоток справа — тёмные на красном, как в макете.
+ * .root .submit, а не просто .submit: у Button свои классы с той же специфичностью,
+ * и без этого результат зависел бы от порядка CSS. Молоток — TintedIcon, берёт цвет текста.
+ */
+.root .submit {
+  min-height: 64px;
+  border-radius: 0;
+  font-size: var(--font-size-xl);
+  color: var(--color-bg);
+}
+
+.hint,
+.note {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.hint {
+  color: var(--color-danger);
+}
+
+.leading,
+.success {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-success);
+}

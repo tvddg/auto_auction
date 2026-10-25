@@ -1,4 +1,5 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
+import { Link } from "react-router";
 
 import { cn, useCountdown } from "@/shared/lib";
 import { iconSources, type IconName } from "@/shared/ui";
@@ -71,7 +72,7 @@ function ActiveBadge({ remainingTime }: { remainingTime: number }) {
 }
 
 export function LotCard(props: LotCardProps) {
-    const { title, imageUrl, shortInfo, price, betsAmount, inFeatured } = props;
+    const { id, title, imageUrl, shortInfo, price, betsAmount, inFeatured } = props;
 
     let badge: ReactNode;
     let pricePrefix = "";
@@ -101,26 +102,28 @@ export function LotCard(props: LotCardProps) {
     const isFinished = props.status === "sold" || props.status === "unsold";
 
     return <li className={cn(cl.item, isFinished && cl.sold)}>
-        <article className={cl.card}>
-            <div className={cl.media}>
-                {imageUrl && <img className={cl.image} src={imageUrl} alt={title} loading="lazy" />}
-                <span
-                    className={cn(cl.featured, inFeatured && cl.featuredActive)}
-                    aria-label={inFeatured ? "В избранном" : "Не в избранном"}
-                >
-                    ☆
-                </span>
-                {badge}
-            </div>
+        <Link to={`/lot/${id}`} className={cl.link}>
+            <article className={cl.card}>
+                <div className={cl.media}>
+                    {imageUrl && <img className={cl.image} src={imageUrl} alt={title} loading="lazy" />}
+                    <span
+                        className={cn(cl.featured, inFeatured && cl.featuredActive)}
+                        aria-label={inFeatured ? "В избранном" : "Не в избранном"}
+                    >
+                        ☆
+                    </span>
+                    {badge}
+                </div>
 
-            <h3 className={cl.title}>{title}</h3>
-            <p className={cl.info}>
-                {shortInfo.year} · {formatMileage(shortInfo.mileage)} · {shortInfo.gear}
-            </p>
-            <p className={cl.price}>
-                {pricePrefix}<PriceValue value={price} />
-            </p>
-            <div className={cl.footer}>{footer}</div>
-        </article>
+                <h3 className={cl.title}>{title}</h3>
+                <p className={cl.info}>
+                    {shortInfo.year} · {formatMileage(shortInfo.mileage)} · {shortInfo.gear}
+                </p>
+                <p className={cl.price}>
+                    {pricePrefix}<PriceValue value={price} />
+                </p>
+                <div className={cl.footer}>{footer}</div>
+            </article>
+        </Link>
     </li>;
 }
