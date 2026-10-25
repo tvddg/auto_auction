@@ -15,6 +15,8 @@ export type RequestConfig = {
   withAuth?: boolean
   /** Пробовать ли обновить токен при 401. По умолчанию — да. */
   withRefresh?: boolean
+  /** Дополнительные заголовки, например Idempotency-Key у ставки. */
+  headers?: Record<string, string>
 }
 
 const CSRF_COOKIE = 'XSRF-TOKEN'
@@ -27,7 +29,7 @@ const readCookie = (name: string): string | null => {
 
 const buildRequest = (path: string, config: RequestConfig): [string, RequestInit] => {
   const method = config.method ?? 'GET'
-  const headers = new Headers({ Accept: 'application/json' })
+  const headers = new Headers({ Accept: 'application/json', ...config.headers })
 
   let body: string | FormData | undefined
   if (config.body instanceof FormData) {

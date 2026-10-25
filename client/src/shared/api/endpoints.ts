@@ -10,6 +10,11 @@ export const apiEndpoints = {
   },
   lots: {
     list: '/lot',
+    byId: (id: string) => `/lot/${encodeURIComponent(id)}`,
+    bids: (id: string) => `/lot/${encodeURIComponent(id)}/bids`,
+  },
+  bids: {
+    create: '/bid',
   },
   photos: {
     upload: '/photo',

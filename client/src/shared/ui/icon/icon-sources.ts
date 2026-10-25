@@ -1,4 +1,12 @@
+import calendarIcon from '@/assets/calendar.png'
 import carIcon from '@/assets/car.png'
+import driveTypeIcon from '@/assets/drivetype.png'
+import gearIcon from '@/assets/gear.png'
+import hammerIcon from '@/assets/hammer.png'
+import infoIcon from '@/assets/info.png'
+import penIcon from '@/assets/pen.png'
+import shareIcon from '@/assets/share.png'
+import speedIcon from '@/assets/speed.png'
 import gosuslugiIcon from '@/assets/gosuslugi.png'
 import grayClockIcon from '@/assets/gray-clock.png'
 import guardIcon from '@/assets/guard.png'
@@ -15,7 +23,15 @@ import betsIcon from '@/assets/bets.png'
 import profileIcon from '@/assets/profile.png'
 
 export const iconSources = {
+  calendar: calendarIcon,
   car: carIcon,
+  driveType: driveTypeIcon,
+  gear: gearIcon,
+  hammer: hammerIcon,
+  info: infoIcon,
+  pen: penIcon,
+  share: shareIcon,
+  speed: speedIcon,
   gosuslugi: gosuslugiIcon,
   grayClock: grayClockIcon,
   guard: guardIcon,
