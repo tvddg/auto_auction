@@ -1,5 +1,7 @@
 export { Button } from './button/Button'
 export type { ButtonProps } from './button/Button'
+export { DateTimePicker } from './date-time-picker/DateTimePicker'
+export type { DateTimePickerProps } from './date-time-picker/DateTimePicker'
 export { FormError } from './form-error/FormError'
 export { FormField } from './form-field/FormField'
 export type { FormFieldProps } from './form-field/FormField'
