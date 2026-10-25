@@ -1,6 +1,6 @@
 import { apiEndpoints, apiRequest } from '@/shared/api'
 
-import type { Bid, CreateBidDto } from '../model/types'
+import type { Bid, CreateBidDto, MyBid } from '../model/types'
 
 /**
  * Ставка. idempotencyKey — UUID, общий для повторных попыток одной и той же ставки:
@@ -13,3 +13,5 @@ export const createBid = (dto: CreateBidDto, idempotencyKey: string) =>
     body: dto,
     headers: { 'Idempotency-Key': idempotencyKey },
   })
+
+export const fetchMyBids = (signal?: AbortSignal) => apiRequest<MyBid[]>(apiEndpoints.bids.mine, { signal })

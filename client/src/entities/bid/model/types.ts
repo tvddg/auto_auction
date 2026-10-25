@@ -23,3 +23,16 @@ export type CreateBidDto = {
   lotId: string
   amountCents: number
 }
+
+/** Строка «Моих ставок» (GET /my/bids): лот с идущими торгами, где у меня есть принятая ставка. */
+export type MyBid = {
+  lotId: string
+  title: string
+  imageUrl: string | null
+  /** Моя максимальная ставка, в копейках */
+  myBid: number
+  currentPrice: number
+  isLeader: boolean
+  bidCount: number
+  endsAt: string
+}

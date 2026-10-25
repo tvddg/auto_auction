@@ -32,3 +32,13 @@ export const formatDuration = (totalSeconds: number): string => {
   const seconds = totalSeconds % 60
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
+
+const pad = (value: number) => String(value).padStart(2, '0')
+
+/** Таймер торгов: «1:48:03», а больше суток — «2 д 04:12:33». */
+export const formatCountdown = (totalSeconds: number): string => {
+  const days = Math.floor(totalSeconds / 86_400)
+  const hours = Math.floor((totalSeconds % 86_400) / 3600)
+  const time = `${days ? pad(hours) : hours}:${pad(Math.floor((totalSeconds % 3600) / 60))}:${pad(totalSeconds % 60)}`
+  return days ? `${days} д ${time}` : time
+}

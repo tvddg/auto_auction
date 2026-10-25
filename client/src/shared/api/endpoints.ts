@@ -15,6 +15,7 @@ export const apiEndpoints = {
   },
   bids: {
     create: '/bid',
+    mine: '/my/bids',
   },
   photos: {
     upload: '/photo',

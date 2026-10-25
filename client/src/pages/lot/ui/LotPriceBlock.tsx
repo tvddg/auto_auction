@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 
 import { lotKeys, type LotDetail } from '@/entities/lot'
-import { formatRubles, useCountdown } from '@/shared/lib'
+import { formatCountdown, formatRubles, useCountdown } from '@/shared/lib'
 import { useQueryClient } from '@tanstack/react-query'
 
-import { formatBidCount, formatCountdown, formatDateTime } from '../lib/format'
+import { formatBidCount, formatDateTime } from '../lib/format'
 import styles from './LotPage.module.css'
 
 /** Текущая цена и время: до конца торгов, до старта или дата завершения. */

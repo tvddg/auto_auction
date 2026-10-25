@@ -23,6 +23,6 @@ export {
 export { buildReturnToState, DEFAULT_RETURN_TO, getReturnTo } from './return-to'
 export type { ReturnToState } from './return-to'
 export { centsToRubles, formatRubles, rublesToCents } from './money'
-export { formatDuration, useCountdown } from './use-countdown'
+export { formatCountdown, formatDuration, useCountdown } from './use-countdown'
 export { useDebouncedValue } from './use-debounced-value'
 export { isEmailValid, isPasswordValid, MIN_PASSWORD_LENGTH } from './validation'

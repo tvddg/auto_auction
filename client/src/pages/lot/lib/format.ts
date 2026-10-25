@@ -1,18 +1,6 @@
 import { driveTypeLabels, fuelTypeLabels, transmissionLabels } from '@/entities/car'
 import type { LotDetail, LotStatus } from '@/entities/lot'
 
-const pad = (value: number) => String(value).padStart(2, '0')
-
-/** «1:48:03», а больше суток — «2 д 04:12:33». */
-export const formatCountdown = (totalSeconds: number) => {
-  const days = Math.floor(totalSeconds / 86_400)
-  const hours = Math.floor((totalSeconds % 86_400) / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
-  const time = `${days ? pad(hours) : hours}:${pad(minutes)}:${pad(seconds)}`
-  return days ? `${days} д ${time}` : time
-}
-
 /** «1 мин», «3 ч», а старше суток — дата. */
 export const formatAgo = (iso: string, now = Date.now()) => {
   const minutes = Math.floor((now - new Date(iso).getTime()) / 60_000)

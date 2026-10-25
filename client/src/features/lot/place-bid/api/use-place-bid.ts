@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { createBid, type CreateBidDto } from '@/entities/bid'
+import { bidKeys, createBid, type CreateBidDto } from '@/entities/bid'
 import { lotKeys } from '@/entities/lot'
 
 type PlaceBidVariables = { dto: CreateBidDto; idempotencyKey: string }
@@ -14,6 +14,11 @@ export const usePlaceBid = () => {
 
   return useMutation({
     mutationFn: ({ dto, idempotencyKey }: PlaceBidVariables) => createBid(dto, idempotencyKey),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: lotKeys.root }),
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: lotKeys.root }),
+        // «Мои ставки» тоже устарели: появился новый лот или поменялась моя ставка
+        queryClient.invalidateQueries({ queryKey: bidKeys.root }),
+      ]),
   })
 }
