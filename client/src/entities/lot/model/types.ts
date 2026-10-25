@@ -1,3 +1,5 @@
+import type { BodyType, DriveType, FuelType, Transmission } from '@/entities/car'
+
 /** Карточка каталога в том виде, в каком её отдаёт GET /lot. Цены — в копейках, даты — ISO-строки. */
 type LotCardBaseDto = {
   id: string
@@ -78,4 +80,59 @@ export type Lot = Omit<CreateLotDto, 'photoIds'> & {
   currentPriceCents: number
   bidCount: number
   photos: LotPhoto[]
+}
+
+/** Фаза лота: для открытого вычисляется по времени, см. GET /lot. */
+export type LotStatus = Lot['status']
+
+/** Ответ GET /lot/:id — страница лота. Суммы — в копейках. */
+export type LotDetail = {
+  id: string
+  carInfo: {
+    brand: string
+    model: string
+    trim: string | null
+    color: string
+    year: number
+    bodyType: BodyType
+    vin: string
+    mileage: number
+    transmission: Transmission
+    driveType: DriveType
+    fuelType: FuelType
+    horsePower: number
+    /** см³; null у электромобилей */
+    engineVolume: number | null
+    city: string
+    description: string | null
+  }
+  sellerInfo: { name: string | null }
+  status: LotStatus
+  startingPrice: number
+  currentPrice: number
+  startsAt: string
+  endsAt: string
+  bidCount: number
+  photos: LotPhoto[]
+  /** Шаг ставки для текущей цены; null, если шаги не настроены */
+  bidStep: number | null
+  /** Текущая цена + шаг — меньше сервер не примет */
+  minNextBid: number | null
+  /** Только для вошедшего пользователя */
+  viewer: { isSeller: boolean; isLeader: boolean } | null
+}
+
+/** Строка ленты ставок: участник замаскирован, свои ставки помечены isMine. */
+export type BidFeedItem = {
+  id: string
+  seq: number
+  amountCents: number
+  bidder: string
+  isMine: boolean
+  createdAt: string
+}
+
+export type BidFeed = {
+  items: BidFeedItem[]
+  total: number
 }

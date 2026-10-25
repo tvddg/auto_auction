@@ -1,6 +1,6 @@
 import { apiEndpoints, apiRequest, apiRequestWithHeaders } from '@/shared/api'
 
-import type { CreateLotDto, Lot, LotCardDto, LotListFilters, LotListPage, UploadedPhoto } from '../model/types'
+import type { BidFeed, BidFeedItem, CreateLotDto, Lot, LotCardDto, LotDetail, LotListFilters, LotListPage, UploadedPhoto } from '../model/types'
 
 export const LOTS_PAGE_SIZE = 20
 
@@ -36,4 +36,13 @@ export const uploadPhoto = (file: File, signal?: AbortSignal) => {
   body.append('file', file)
 
   return apiRequest<UploadedPhoto>(apiEndpoints.photos.upload, { method: 'POST', body, signal })
+}
+
+export const fetchLot = (id: string, signal?: AbortSignal) =>
+  apiRequest<LotDetail>(apiEndpoints.lots.byId(id), { signal })
+
+/** Последние принятые ставки, новые сверху; общее число — из X-Total-Count. */
+export const fetchLotBids = async (id: string, signal?: AbortSignal): Promise<BidFeed> => {
+  const { data, headers } = await apiRequestWithHeaders<BidFeedItem[]>(apiEndpoints.lots.bids(id), { signal })
+  return { items: data, total: Number(headers.get('X-Total-Count') ?? data.length) }
 }
