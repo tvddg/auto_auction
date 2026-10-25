@@ -95,6 +95,20 @@ module LotSerializer
     { bidStep: nil, minNextBid: nil }
   end
 
+  # Строка «Моих ставок»: моя ставка против текущей цены и кто лидирует
+  def my_bid(lot, my_bid_cents:, viewer:)
+    {
+      lotId: lot.id,
+      title: lot.car.title,
+      imageUrl: lot.photos.first&.then { |photo| PhotoPaths.card(photo.image) },
+      myBid: my_bid_cents,
+      currentPrice: lot.current_price_cents,
+      isLeader: lot.leader_id == viewer.id,
+      bidCount: lot.bid_count,
+      endsAt: lot.ends_at.iso8601
+    }
+  end
+
   # Фото по порядку: url — для просмотра, thumbUrl — для миниатюр и карточек
   def photos(lot)
     lot.photos.map do |photo|

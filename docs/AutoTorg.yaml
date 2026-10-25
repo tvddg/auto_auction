@@ -508,6 +508,27 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+  /my/bids:
+    get:
+      tags: [Bids]
+      summary: Get My Active Bids
+      description: |
+        «Мои ставки»: лоты с идущими торгами, где у пользователя есть принятая ставка, — сначала те,
+        где торги закончатся раньше. Завершённые лоты сюда не входят.
+      operationId: get-my-bids
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyBid'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /photo:
     post:
       tags: [Lots]
@@ -1134,6 +1155,34 @@ components:
               description: |
                 Только для продавца — что сделает DELETE /lot/{lotId}: `delete` — удалит лот (ставок нет),
                 `cancel` — снимет с торгов (ставки есть, торги не завершены), null — удалить нельзя.
+    MyBid:
+      type: object
+      required: [lotId, title, imageUrl, myBid, currentPrice, isLeader, bidCount, endsAt]
+      properties:
+        lotId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+          description: Относительный адрес превью обложки.
+        myBid:
+          type: integer
+          format: int64
+          description: Моя максимальная принятая ставка, в копейках.
+        currentPrice:
+          type: integer
+          format: int64
+          description: Текущая цена лота, в копейках.
+        isLeader:
+          type: boolean
+        bidCount:
+          type: integer
+        endsAt:
+          type: string
+          format: date-time
     BidFeedItem:
       type: object
       required: [id, seq, amountCents, bidder, isMine, createdAt]
