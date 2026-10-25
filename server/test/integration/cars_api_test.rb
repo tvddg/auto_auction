@@ -79,4 +79,51 @@ class CarsApiTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     assert_equal "not_found", error_code
   end
+
+  # --- поиск по справочнику ---
+
+  def ids = response.parsed_body.map { |car| car["id"] }
+
+  test "список без поиска публичный, отсортирован по марке и отдаёт общее количество" do
+    get "/api/v1/car"
+
+    assert_response :success
+    assert_equal cars(:model_3, :camry).map(&:id), ids # Tesla раньше Toyota
+    assert_equal "2", response.headers["X-Total-Count"]
+  end
+
+  test "поиск по марке, модели и комплектации без учёта регистра" do
+    { "toyota" => [ :camry ], "MODEL 3" => [ :model_3 ], "prest" => [ :camry ], "lada" => [] }.each do |q, expected|
+      get "/api/v1/car", params: { q: }
+
+      assert_equal expected.map { |name| cars(name).id }, ids, q
+      assert_equal expected.size.to_s, response.headers["X-Total-Count"], q
+    end
+  end
+
+  test "VIN в поиске машин не участвует — он принадлежит лоту" do
+    get "/api/v1/car", params: { q: lots(:camry_active).vin }
+
+    assert_empty response.parsed_body
+  end
+
+  test "спецсимволы LIKE ищутся как обычные символы" do
+    get "/api/v1/car", params: { q: "%" }
+
+    assert_empty response.parsed_body
+  end
+
+  test "пагинация" do
+    get "/api/v1/car", params: { limit: 1, page: 2 }
+
+    assert_equal [ cars(:camry).id ], ids
+    assert_equal "2", response.headers["X-Total-Count"]
+  end
+
+  test "некорректные limit и page — 422" do
+    get "/api/v1/car", params: { limit: CarCatalog::MAX_LIMIT + 1, page: 0 }
+
+    assert_response :unprocessable_content
+    assert_equal %w[limit page], response.parsed_body.dig("error", "details").keys.sort
+  end
 end

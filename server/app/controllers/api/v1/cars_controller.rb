@@ -6,6 +6,19 @@ module Api
 
       before_action :authenticate!, only: :create
 
+      rescue_from CarCatalog::InvalidParams do |error|
+        render_error(:unprocessable_content, "validation_error", error.message, details: error.details)
+      end
+
+      # GET /api/v1/car?q=…
+      def index
+        page = CarCatalog.call(params)
+
+        # Тело — массив, как у GET /lot, поэтому общее количество отдаём заголовком
+        response.headers["X-Total-Count"] = page.total.to_s
+        render json: page.cars.map { |car| CarSerializer.call(car) }
+      end
+
       # POST /api/v1/car
       def create
         car = Car.new(params.permit(*FIELDS).to_h.transform_keys(&:underscore))

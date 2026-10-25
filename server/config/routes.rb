@@ -17,7 +17,7 @@ Rails.application.routes.draw do
       end
 
       # Пути в единственном числе — как в контракте API
-      resources :cars, path: "car", only: %i[create show]
+      resources :cars, path: "car", only: %i[index create show]
       resources :lots, path: "lot", only: %i[index show create update destroy]
       resources :bids, path: "bid", only: :create
 

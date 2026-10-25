@@ -140,6 +140,49 @@ paths:
                       existingId: 2f1c6b8e-6a3b-4c55-9d0e-6a1f3c2b7e41
         '422':
           $ref: '#/components/responses/ValidationError'
+    get:
+      tags: [Cars]
+      summary: Search Cars
+      description: |
+        Публичный поиск по справочнику комплектаций — для выбора машины при создании лота.
+        Сортировка: марка, модель, комплектация, затем год по убыванию.
+        Общее число найденных машин — в заголовке `X-Total-Count`.
+      operationId: get-car-list
+      parameters:
+        - name: q
+          in: query
+          description: Поиск по марке, модели и комплектации без учёта регистра. VIN не учитывается — он принадлежит лоту.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Total-Count:
+              description: Число машин по запросу без учёта пагинации.
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+        '422':
+          $ref: '#/components/responses/ValidationError'
   '/car/{carId}':
     get:
       tags: [Cars]
