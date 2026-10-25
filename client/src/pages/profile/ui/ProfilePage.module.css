@@ -103,3 +103,27 @@
   text-align: center;
   color: var(--color-text-muted);
 }
+
+/* Баланс — плашка как у цены на странице лота */
+.balance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-5) var(--space-4);
+  background-color: var(--color-surface);
+}
+
+.balanceLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.balanceValue {
+  font-size: clamp(1.6rem, 7vw, 2.2rem);
+  font-weight: 900;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}

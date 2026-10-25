@@ -10,7 +10,11 @@ export const sessionKeys = {
   currentUser: () => [...sessionKeys.root, 'current-user'] as const,
 }
 
-export const useCurrentUserQuery = () => {
+/**
+ * Профиль текущего пользователя. По умолчанию берётся из кеша (5 минут);
+ * refetchOnMount: 'always' — для экранов, где важны свежие данные, например баланс в профиле.
+ */
+export const useCurrentUserQuery = ({ refetchOnMount }: { refetchOnMount?: 'always' } = {}) => {
   const isAuthenticated = useSessionStore((state) => state.status === 'authenticated')
   const setUser = useSessionStore((state) => state.setUser)
 
@@ -19,6 +23,7 @@ export const useCurrentUserQuery = () => {
     queryFn: ({ signal }) => fetchCurrentUser(signal),
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000,
+    refetchOnMount,
   })
 
   useEffect(() => {

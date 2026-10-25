@@ -4,6 +4,8 @@ export type User = {
   phone: string
   name: string | null
   phoneVerified: boolean
+  /** Депозит в копейках: ставка принимается, только если он покрывает всю её сумму */
+  depositCents: number
   createdAt: string
 }
 

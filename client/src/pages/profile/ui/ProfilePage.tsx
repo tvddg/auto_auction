@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { useCurrentUserQuery, useSessionUser } from '@/entities/session'
 import { useLogout } from '@/features/auth/logout'
 import { getErrorMessage } from '@/shared/api'
-import { formatPhone, normalizePhoneDigits } from '@/shared/lib'
+import { formatPhone, formatRubles, normalizePhoneDigits } from '@/shared/lib'
 import { Button } from '@/shared/ui'
 import { Header } from '@/widgets/header'
 import { NavBar } from '@/widgets/nav-bar'
@@ -16,7 +16,8 @@ const formatSince = (iso: string) =>
 /** /profile — данные аккаунта и выход. Маршрут закрыт RequireAuth, так что сессия здесь всегда есть. */
 export const ProfilePage = () => {
   const user = useSessionUser()
-  const currentUserQuery = useCurrentUserQuery()
+  // Баланс мог измениться, пока профиль был закрыт, — перезапрашиваем при каждом открытии
+  const currentUserQuery = useCurrentUserQuery({ refetchOnMount: 'always' })
   const logout = useLogout()
   const navigate = useNavigate()
 
@@ -41,6 +42,12 @@ export const ProfilePage = () => {
             <span className={styles.muted}>На площадке с {formatSince(user.createdAt)}</span>
           </div>
         </div>
+
+        <section className={styles.balance}>
+          <span className={styles.balanceLabel}>Баланс</span>
+          <span className={styles.balanceValue}>{formatRubles(user.depositCents)}</span>
+          <span className={styles.muted}>Ставка принимается, если баланс покрывает всю её сумму</span>
+        </section>
 
         <section>
           <h2 className={styles.sectionTitle}>Контакты</h2>
