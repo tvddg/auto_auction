@@ -1,5 +1,6 @@
 import type { CreateCarDto } from '@/entities/car'
 import type { CreateLotDto } from '@/entities/lot'
+import { addDays, parseLocalDateTime } from '@/shared/lib'
 
 import type { CarFormDraft, DraftCar, LotDetailsDraft, LotDraft } from '../model/drafts.store'
 
@@ -39,12 +40,24 @@ export const validateDetails = (details: LotDetailsDraft): FormErrors<LotDetails
   })
 
   if (details.vin && !VIN_FORMAT.test(details.vin)) errors.vin = 'VIN — 17 символов: латиница и цифры, без I, O, Q'
-  if (details.startsAt && details.endsAt && new Date(details.endsAt) <= new Date(details.startsAt)) {
-    errors.endsAt = 'Окончание должно быть позже начала'
+
+  // Те же правила, что задают нижнюю границу в окнах выбора даты. Проверяем и здесь:
+  // черновик могли открыть через несколько дней — и сохранённое начало уже в прошлом
+  const startsAt = parseLocalDateTime(details.startsAt)
+  const endsAt = parseLocalDateTime(details.endsAt)
+  if (startsAt && startsAt < new Date()) errors.startsAt = 'Начало торгов не может быть в прошлом'
+  if (startsAt && endsAt && endsAt < minEndsAt(details.startsAt)) {
+    errors.endsAt = `Торги длятся не меньше ${MIN_AUCTION_DAYS} дней от начала`
   }
 
   return errors
 }
+
+/** Минимальная длительность торгов. */
+export const MIN_AUCTION_DAYS = 3
+
+/** Нижняя граница окончания: начало + 3 дня, а пока начало не выбрано — сейчас + 3 дня. */
+export const minEndsAt = (startsAt: string) => addDays(parseLocalDateTime(startsAt) ?? new Date(), MIN_AUCTION_DAYS)
 
 const optionalText = (value: string) => value.trim() || null
 

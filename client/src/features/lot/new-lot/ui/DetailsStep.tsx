@@ -1,9 +1,9 @@
 import { useId, useState, type SubmitEvent } from 'react'
 
 import { NavigateKeepingState, useNavigateKeepingState } from '@/shared/lib'
-import { Button, FormField, TextInput } from '@/shared/ui'
+import { Button, DateTimePicker, FormField, TextInput } from '@/shared/ui'
 
-import { hasErrors, normalizeVin, onlyDigits, validateDetails, type FormErrors } from '../lib/form'
+import { hasErrors, minEndsAt, normalizeVin, onlyDigits, validateDetails, type FormErrors } from '../lib/form'
 import { newLotPaths } from '../lib/steps'
 import type { LotDetailsDraft } from '../model/drafts.store'
 import { useActiveDraft } from '../model/use-active-draft'
@@ -12,7 +12,6 @@ import { StepHeader } from './StepHeader'
 
 type FieldOptions = {
   placeholder?: string
-  type?: 'text' | 'datetime-local'
   normalize?: (value: string) => string
   maxLength?: number
 }
@@ -46,7 +45,6 @@ export const DetailsStep = () => {
     <FormField label={label} htmlFor={`${fieldId}-${key}`} error={errors[key]}>
       <TextInput
         id={`${fieldId}-${key}`}
-        type={options.type ?? 'text'}
         value={details[key]}
         placeholder={options.placeholder}
         maxLength={options.maxLength}
@@ -54,6 +52,20 @@ export const DetailsStep = () => {
         autoComplete="off"
         invalid={Boolean(errors[key])}
         onChange={(event) => setField(key, options.normalize ? options.normalize(event.target.value) : event.target.value)}
+      />
+    </FormField>
+  )
+
+  // Нижние границы: начало — не раньше текущего момента, окончание — не раньше чем через 3 дня после начала
+  const dateField = (key: 'startsAt' | 'endsAt', label: string, min: Date) => (
+    <FormField label={label} htmlFor={`${fieldId}-${key}`} error={errors[key]}>
+      <DateTimePicker
+        id={`${fieldId}-${key}`}
+        dialogTitle={label}
+        value={details[key]}
+        min={min}
+        invalid={Boolean(errors[key])}
+        onChange={(value) => setField(key, value)}
       />
     </FormField>
   )
@@ -76,10 +88,8 @@ export const DetailsStep = () => {
         {field('city', 'Город', { placeholder: 'Москва' })}
         {field('startingPrice', 'Стартовая цена, ₽', { placeholder: '1500000', normalize: onlyDigits })}
       </div>
-      <div className={styles.row}>
-        {field('startsAt', 'Начало торгов', { type: 'datetime-local' })}
-        {field('endsAt', 'Окончание торгов', { type: 'datetime-local' })}
-      </div>
+      {dateField('startsAt', 'Начало торгов', new Date())}
+      {dateField('endsAt', 'Окончание торгов', minEndsAt(details.startsAt))}
 
       <div className={styles.actions}>
         <Button type="submit" size="lg" trailing="→">

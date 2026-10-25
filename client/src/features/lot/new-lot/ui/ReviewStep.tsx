@@ -3,7 +3,7 @@ import { NavigateKeepingState, useNavigateKeepingState } from '@/shared/lib'
 import { Button, FormError } from '@/shared/ui'
 
 import { usePublishLot } from '../api/use-publish-lot'
-import { formatLocalDateTime, formatRubles, toCreateLotDto } from '../lib/form'
+import { formatLocalDateTime, formatRubles, hasErrors, toCreateLotDto, validateDetails } from '../lib/form'
 import { isDetailsFilled, newLotPaths, nextStepPath } from '../lib/steps'
 import { useDraftsStore } from '../model/drafts.store'
 import { useNewLotSheet } from '../model/sheet-context'
@@ -23,6 +23,9 @@ export const ReviewStep = () => {
   if (!draft.car || !isDetailsFilled(draft.details)) return <NavigateKeepingState to={nextStepPath(draft)} />
 
   const { car, details } = draft
+  // Даты проверяем заново: черновик могли открыть спустя время, и начало уже прошло
+  const staleErrors = Object.values(validateDetails(details))
+  const isStale = hasErrors(staleErrors)
 
   const handlePublish = () => {
     publish.mutate(toCreateLotDto(car, details), {
@@ -70,6 +73,17 @@ export const ReviewStep = () => {
         </dl>
       </section>
 
+      {isStale && (
+        <div className={styles.notice} role="alert">
+          <ul className={styles.errorList}>
+            {staleErrors.map((message, index) => <li key={index}>{message}</li>)}
+          </ul>
+          <Button variant="secondary" onClick={() => navigate(newLotPaths.details(draft.id))}>
+            Исправить данные
+          </Button>
+        </div>
+      )}
+
       {publish.isError && (
         <div className={styles.notice} role="alert">
           <FormError message={getErrorMessage(publish.error)} />
@@ -88,7 +102,7 @@ export const ReviewStep = () => {
       )}
 
       <div className={styles.actions}>
-        <Button size="lg" loading={publish.isPending} onClick={handlePublish}>
+        <Button size="lg" loading={publish.isPending} disabled={isStale || publish.isPending} onClick={handlePublish}>
           Опубликовать
         </Button>
       </div>
