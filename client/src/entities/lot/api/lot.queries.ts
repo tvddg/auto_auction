@@ -2,13 +2,14 @@ import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-qu
 
 import type { LotListFilters } from '../model/types'
 
-import { fetchLot, fetchLotBids, fetchLots, LOTS_PAGE_SIZE } from './lot.api'
+import { fetchLot, fetchLotBids, fetchLots, fetchMyLots, LOTS_PAGE_SIZE } from './lot.api'
 
 export const lotKeys = {
   root: ['lots'] as const,
   list: (filters: LotListFilters) => [...lotKeys.root, 'list', filters] as const,
   detail: (id: string) => [...lotKeys.root, 'detail', id] as const,
   bids: (id: string) => [...lotKeys.root, 'detail', id, 'bids'] as const,
+  mine: () => [...lotKeys.root, 'mine'] as const,
 }
 
 /** Каталог постранично: следующая страница — по «Показать ещё». */
@@ -39,4 +40,12 @@ export const useLotBidsQuery = (id: string, { poll }: { poll: boolean }) =>
     queryKey: lotKeys.bids(id),
     queryFn: ({ signal }) => fetchLotBids(id, signal),
     refetchInterval: poll ? LOT_POLL_INTERVAL_MS : false,
+  })
+
+/** «Мои лоты». Пока у продавца идут торги, цена и число ставок меняются — обновляем раз в 10 секунд */
+export const useMyLotsQuery = () =>
+  useQuery({
+    queryKey: lotKeys.mine(),
+    queryFn: ({ signal }) => fetchMyLots(signal),
+    refetchInterval: (query) => (query.state.data?.some((lot) => lot.status === 'active') ? 10_000 : false),
   })

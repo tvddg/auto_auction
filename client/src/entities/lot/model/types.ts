@@ -143,3 +143,18 @@ export type BidFeed = {
   items: BidFeedItem[]
   total: number
 }
+
+/** Строка «Моих лотов» (GET /my/lots) — опубликованный лот продавца в любом статусе. Суммы в копейках. */
+export type MyLot = {
+  lotId: string
+  title: string
+  imageUrl: string | null
+  status: LotStatus
+  startingPrice: number
+  currentPrice: number
+  bidCount: number
+  startsAt: string
+  endsAt: string
+  /** Замаскированный победитель — только у проданного лота */
+  buyer: string | null
+}

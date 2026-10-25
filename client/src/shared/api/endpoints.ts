@@ -12,6 +12,7 @@ export const apiEndpoints = {
     list: '/lot',
     byId: (id: string) => `/lot/${encodeURIComponent(id)}`,
     bids: (id: string) => `/lot/${encodeURIComponent(id)}/bids`,
+    mine: '/my/lots',
   },
   bids: {
     create: '/bid',

@@ -1,6 +1,6 @@
 import { apiEndpoints, apiRequest, apiRequestWithHeaders } from '@/shared/api'
 
-import type { BidFeed, BidFeedItem, CreateLotDto, Lot, LotCardDto, LotDetail, LotListFilters, LotListPage, UploadedPhoto } from '../model/types'
+import type { BidFeed, BidFeedItem, CreateLotDto, Lot, LotCardDto, LotDetail, LotListFilters, LotListPage, MyLot, UploadedPhoto } from '../model/types'
 
 export const LOTS_PAGE_SIZE = 20
 
@@ -49,3 +49,5 @@ export const fetchLotBids = async (id: string, signal?: AbortSignal): Promise<Bi
 
 /** Без ставок лот удаляется, со ставками до конца торгов — снимается с торгов (см. viewer.removal). */
 export const deleteLot = (id: string) => apiRequest<void>(apiEndpoints.lots.byId(id), { method: 'DELETE' })
+
+export const fetchMyLots = (signal?: AbortSignal) => apiRequest<MyLot[]>(apiEndpoints.lots.mine, { signal })
