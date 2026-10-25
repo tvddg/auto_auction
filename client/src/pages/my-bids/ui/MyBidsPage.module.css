@@ -1,8 +1,7 @@
 /* «Мои ставки» — по макету 04 */
 
+/* Во всю ширину экрана, как каталог */
 .page {
-  max-width: 720px;
-  margin: 0 auto;
   /* Место под закреплённым нижним меню — как в каталоге */
   padding-bottom: calc(var(--nav-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
 }
