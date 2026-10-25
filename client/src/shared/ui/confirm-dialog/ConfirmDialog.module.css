@@ -1,0 +1,65 @@
+/* В стиле окна выбора даты: рамка, скругление, плавное появление */
+.dialog {
+  width: min(400px, calc(100vw - 2 * var(--space-4)));
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text);
+
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    display 160ms allow-discrete,
+    overlay 160ms allow-discrete;
+}
+
+.dialog[open] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.dialog::backdrop {
+  background-color: rgb(0 0 0 / 60%);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+}
+
+.body {
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.body p {
+  margin: 0;
+}
+
+.body p + p {
+  margin-top: var(--space-2);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}

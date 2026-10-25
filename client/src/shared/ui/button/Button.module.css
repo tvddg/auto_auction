@@ -64,6 +64,17 @@
   color: var(--color-text);
 }
 
+/* Необратимые действия: удаление, снятие с торгов */
+.danger {
+  color: var(--color-danger);
+  background-color: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
+}
+
+.danger:not(:disabled):hover {
+  border-color: var(--color-danger);
+}
+
 /* Размеры */
 
 .lg {

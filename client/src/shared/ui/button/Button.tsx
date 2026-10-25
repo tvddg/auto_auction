@@ -4,7 +4,7 @@ import { cn } from '@/shared/lib'
 
 import styles from './Button.module.css'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 type ButtonSize = 'md' | 'lg'
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {

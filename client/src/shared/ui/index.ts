@@ -1,5 +1,7 @@
 export { Button } from './button/Button'
 export type { ButtonProps } from './button/Button'
+export { ConfirmDialog } from './confirm-dialog/ConfirmDialog'
+export type { ConfirmDialogProps } from './confirm-dialog/ConfirmDialog'
 export { DateTimePicker } from './date-time-picker/DateTimePicker'
 export type { DateTimePickerProps } from './date-time-picker/DateTimePicker'
 export { FormError } from './form-error/FormError'
