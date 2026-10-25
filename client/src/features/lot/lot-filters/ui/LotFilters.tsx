@@ -1,14 +1,14 @@
+import { useId } from 'react'
+
 import { Icon } from '@/shared/ui'
 
 import { useFiltersStore } from '../model/filters.store'
 import { formatPriceRange, formatYearRange } from '../lib/format'
 import styles from './LotFilters.module.css'
+import { LotFiltersPanel } from './LotFiltersPanel'
 
-type LotFiltersProps = {
-  onOpen?: () => void
-}
-
-export const LotFilters = ({ onOpen }: LotFiltersProps) => {
+export const LotFilters = () => {
+  const panelId = useId()
   const brandsId = useFiltersStore((state) => state.brandsId)
   const minYear = useFiltersStore((state) => state.minYear)
   const maxYear = useFiltersStore((state) => state.maxYear)
@@ -49,7 +49,7 @@ export const LotFilters = ({ onOpen }: LotFiltersProps) => {
       <button
         type="button"
         className={styles.openButton}
-        onClick={onOpen}
+        popoverTarget={panelId}
         aria-label={chips.length ? `Фильтры, выбрано: ${chips.length}` : 'Фильтры'}
       >
         <Icon name="filters" size={16} />
@@ -69,6 +69,8 @@ export const LotFilters = ({ onOpen }: LotFiltersProps) => {
           </button>
         </div>
       ))}
+
+      <LotFiltersPanel id={panelId} />
     </div>
   )
 }

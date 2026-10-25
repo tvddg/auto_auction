@@ -28,3 +28,20 @@
 .cardsGrid {
     margin-bottom: 3.5rem;
 }
+
+.status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-4);
+    text-align: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.more {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-4);
+}

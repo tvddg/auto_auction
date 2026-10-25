@@ -1,0 +1,52 @@
+/* Выпадающее окно в том же стиле, что и список сортировки (::picker(select) в LotSort) */
+.panel {
+  position-anchor: --lot-filters-trigger;
+  position-area: bottom span-right;
+  position-try-fallbacks: flip-block;
+  inset: auto;
+  margin: var(--space-2) 0;
+  width: min(360px, calc(100vw - 2 * var(--space-4)));
+  max-height: calc(100dvh - 2 * var(--space-4));
+  overflow-y: auto;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.panel:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.range {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+/* Без CSS anchor positioning окно открывается по центру экрана — так оно хотя бы не уезжает за край */
+@supports not (position-anchor: --a) {
+  .panel {
+    inset: 0;
+    margin: auto;
+  }
+}

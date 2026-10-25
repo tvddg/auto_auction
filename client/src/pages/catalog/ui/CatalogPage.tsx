@@ -1,68 +1,114 @@
+import { useState } from "react";
+
 import cl from "./CatalogPage.module.css"
 
-import vwImage from "@/assets/mockLotImages/vw.jpg";
-import audiImage from "@/assets/mockLotImages/audi.webp";
-import mercedesImage from "@/assets/mockLotImages/mercedes.jpeg";
-import celicaImage from "@/assets/mockLotImages/celica.avif";
-
-import type { LotCardProps } from "@/features/lot/lot-card"
-import { LotCategories } from "@/features/lot/lot-categories"
-import { LotFilters } from "@/features/lot/lot-filters"
-import { LotSort } from "@/features/lot/lot-sort"
-import { SearchField } from "@/shared/ui"
+import { useLotsInfiniteQuery, type LotListFilters } from "@/entities/lot"
+import { toLotCardProps } from "@/features/lot/lot-card"
+import { LotCategories, useLotCategory } from "@/features/lot/lot-categories"
+import { LotFilters, useFiltersStore } from "@/features/lot/lot-filters"
+import { LotSort, useSortStore } from "@/features/lot/lot-sort"
+import { getErrorMessage } from "@/shared/api"
+import { useDebouncedValue } from "@/shared/lib"
+import { Button, SearchField } from "@/shared/ui"
 import { CardsGrid } from "@/widgets/cards-grid"
 import { Header } from "@/widgets/header"
 import { NavBar } from "@/widgets/nav-bar"
 
-// TODO: заменить на данные из API
-const mockLots: LotCardProps[] = [
-    {
-        id: "1", status: "active", remainingTime: 12 * 60_000 + 45_000,
-        title: "Audi A3 Sportback Cashback Uzback 1.6 TDI DPI SPY", imageUrl: audiImage,
-        shortInfo: { year: 2010, mileage: 187_000, gear: "МКПП" },
-        price: 690_000, betsAmount: 14, inFeatured: false,
-    },
-    {
-        id: "2", status: "active", remainingTime: (60 * 60 + 48 * 60 + 3) * 1000,
-        title: "VW Golf GTI Clubsport", imageUrl: vwImage,
-        shortInfo: { year: 2016, mileage: 74_000, gear: "DSG" },
-        price: 2_350_000, betsAmount: 31, inFeatured: true,
-    },
-    {
-        id: "3", status: "upcoming", startDate: new Date(2026, 8, 16, 12, 0),
-        title: "Mercedes-Benz E 220 d", imageUrl: mercedesImage,
-        shortInfo: { year: 2018, mileage: 121_000, gear: "АКПП" },
-        price: 1_900_000, betsAmount: 0, inFeatured: false,
-    },
-    {
-        id: "4", status: "sold", dealDate: new Date(2026, 8, 12),
-        title: "Toyota Celica GT-Four", imageUrl: celicaImage,
-        shortInfo: { year: 1994, mileage: 210_000, gear: "МКПП" },
-        price: 1_480_000, betsAmount: 22, inFeatured: false,
-    },
-]
+const SEARCH_DEBOUNCE_MS = 300
+
+const lotsForms: Record<Intl.LDMLPluralRule, string> = {
+    zero: "лотов", one: "лот", two: "лота", few: "лота", many: "лотов", other: "лота",
+};
+const pluralRules = new Intl.PluralRules("ru-RU");
+const formatLotsCount = (count: number) => `${count} ${lotsForms[pluralRules.select(count)]}`;
+
+// Фильтры хранят цены в рублях, API ждёт копейки
+const toCents = (rubles: number | null) => rubles === null ? undefined : rubles * 100;
+
+/** Собирает параметры GET /lot из вкладки, фильтров, сортировки и поиска. */
+function useCatalogFilters(search: string): LotListFilters {
+    const [category] = useLotCategory();
+    const brands = useFiltersStore((state) => state.brandsId);
+    const minYear = useFiltersStore((state) => state.minYear);
+    const maxYear = useFiltersStore((state) => state.maxYear);
+    const minPrice = useFiltersStore((state) => state.minPrice);
+    const maxPrice = useFiltersStore((state) => state.maxPrice);
+    const sort = useSortStore((state) => state.sortKey);
+    const order = useSortStore((state) => state.order);
+
+    return {
+        status: category,
+        brands: brands?.length ? brands : undefined,
+        minYear: minYear ?? undefined,
+        maxYear: maxYear ?? undefined,
+        minPrice: toCents(minPrice),
+        maxPrice: toCents(maxPrice),
+        q: search.trim() || undefined,
+        sort,
+        order,
+    };
+}
 
 export function CatalogPage() {
+    const [search, setSearch] = useState("");
+    const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
+    const filters = useCatalogFilters(debouncedSearch);
+
+    const lotsQuery = useLotsInfiniteQuery(filters);
+    const pages = lotsQuery.data?.pages ?? [];
+    const cards = pages.flatMap((page) => page.items).map(toLotCardProps);
+    const total = pages[0]?.total;
+
+    let content;
+    if (lotsQuery.isPending) {
+        content = <p className={cl.status}>Загружаем лоты…</p>;
+    } else if (lotsQuery.isError && cards.length === 0) {
+        content = <div className={cl.status}>
+            <p>{getErrorMessage(lotsQuery.error)}</p>
+            <Button variant="secondary" onClick={() => lotsQuery.refetch()}>Повторить</Button>
+        </div>;
+    } else if (cards.length === 0) {
+        content = <p className={cl.status}>Ничего не найдено. Попробуйте изменить фильтры или запрос</p>;
+    } else {
+        content = <>
+            <CardsGrid cards={cards} />
+            {lotsQuery.hasNextPage && <div className={cl.more}>
+                <Button
+                    variant="secondary"
+                    loading={lotsQuery.isFetchingNextPage}
+                    onClick={() => lotsQuery.fetchNextPage()}
+                >
+                    Показать ещё
+                </Button>
+            </div>}
+        </>;
+    }
+
     return <>
         <Header />
         <main>
             <div className={cl.headerTab}>
-                <SearchField />
+                <SearchField
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    aria-label="Поиск лотов"
+                />
                 <LotCategories />
                 <LotFilters />
                 <div className={cl.listToolbar}>
-                    <span className={cl.lotsCount}>{mockLots.length} лотов</span>
+                    <span className={cl.lotsCount} aria-live="polite">
+                        {total === undefined ? "…" : formatLotsCount(total)}
+                    </span>
                     <LotSort />
                 </div>
                 <div className={cl.separator} />
             </div>
 
-            <div className={cl.cardsGrid}>
-                <CardsGrid cards={mockLots} />
+            <div className={cl.cardsGrid} aria-busy={lotsQuery.isFetching}>
+                {content}
             </div>
 
             <NavBar />
         </main>
     </>
-
 }

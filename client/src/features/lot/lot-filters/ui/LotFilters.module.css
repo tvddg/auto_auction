@@ -19,6 +19,7 @@
 }
 
 .openButton {
+  anchor-name: --lot-filters-trigger;
   border: none;
   background-color: var(--color-accent);
   cursor: pointer;
