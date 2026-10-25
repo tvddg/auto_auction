@@ -1,0 +1,19 @@
+.select {
+  flex: 1;
+  min-width: 0;
+  min-height: calc(var(--control-height-lg) - 3px);
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.select option {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text);
+}
