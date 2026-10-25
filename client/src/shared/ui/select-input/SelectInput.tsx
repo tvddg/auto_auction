@@ -5,7 +5,7 @@ import { cn } from '@/shared/lib'
 import textInputStyles from '../text-input/TextInput.module.css'
 import styles from './SelectInput.module.css'
 
-export type SelectOption<T extends string = string> = { value: T; label: string }
+export type SelectOption<T extends string = string> = { value: T; label: string; disabled?: boolean }
 
 export type SelectInputProps<T extends string> = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'> & {
   options: ReadonlyArray<SelectOption<T>>
@@ -26,7 +26,7 @@ export const SelectInput = <T extends string>({
     <select {...rest} aria-invalid={invalid || undefined} className={cn(styles.select, className)}>
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((option) => (
-        <option key={option.value} value={option.value}>{option.label}</option>
+        <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>
       ))}
     </select>
   </div>
