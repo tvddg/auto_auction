@@ -34,6 +34,12 @@ export type DraftCar = {
   specs: string
 }
 
+/** Фото уже на сервере (POST /photo), но к лоту не привязано: signedId уйдёт в POST /lot. */
+export type DraftPhoto = {
+  signedId: string
+  url: string
+}
+
 export type LotDraft = {
   id: string
   createdAt: number
@@ -41,12 +47,16 @@ export type LotDraft = {
   car: DraftCar | null
   carForm: CarFormDraft
   details: LotDetailsDraft
+  /** По порядку: первое — обложка. */
+  photos: DraftPhoto[]
 }
 
 export type DraftPatch = {
   car?: DraftCar | null
   carForm?: Partial<CarFormDraft>
   details?: Partial<LotDetailsDraft>
+  /** Список целиком — так проще менять порядок и удалять. */
+  photos?: DraftPhoto[]
 }
 
 const emptyCarForm: CarFormDraft = {
@@ -81,6 +91,7 @@ export const useDraftsStore = create<DraftsState>()(
           car: null,
           carForm: emptyCarForm,
           details: emptyDetails,
+          photos: [],
         }
 
         set((state) => ({
@@ -103,6 +114,7 @@ export const useDraftsStore = create<DraftsState>()(
             car: patch.car === undefined ? draft.car : patch.car,
             carForm: { ...draft.carForm, ...patch.carForm },
             details: { ...draft.details, ...patch.details },
+            photos: patch.photos ?? draft.photos,
             updatedAt: Date.now(),
           }
 
@@ -129,7 +141,19 @@ export const useDraftsStore = create<DraftsState>()(
       // Сохраняем только данные, без функций
       partialize: (state) => ({ draftsByUser: state.draftsByUser }),
       // При изменении формы черновика поднимите версию и опишите migrate, иначе старые черновики сломаются
-      version: 1,
+      version: 2,
+      migrate: (persisted, version) => {
+        const state = persisted as Pick<DraftsState, 'draftsByUser'>
+        // v1 → v2: появились фото — старым черновикам добавляем пустой список
+        if (version < 2) {
+          Object.values(state.draftsByUser).forEach((drafts) =>
+            Object.values(drafts).forEach((draft) => {
+              draft.photos ??= []
+            }),
+          )
+        }
+        return state
+      },
     },
   ),
 )

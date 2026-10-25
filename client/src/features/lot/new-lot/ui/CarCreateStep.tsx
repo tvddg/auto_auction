@@ -102,7 +102,7 @@ export const CarCreateStep = () => {
 
   return (
     <form className={styles.step} onSubmit={handleSubmit} noValidate>
-      <StepHeader caption="Шаг 1 из 3" title="Новая машина" backTo={newLotPaths.car(draft.id)} />
+      <StepHeader caption="Шаг 1 из 4" title="Новая машина" backTo={newLotPaths.car(draft.id)} />
       <p className={styles.muted}>Машина попадёт в общий справочник — её смогут выбрать и другие продавцы.</p>
 
       {/* Ошибки по полям показываются у полей; здесь — только общие (сеть, 500 и т. п.) */}

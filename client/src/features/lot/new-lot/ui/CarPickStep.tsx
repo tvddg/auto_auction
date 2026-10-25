@@ -54,7 +54,7 @@ export const CarPickStep = () => {
 
   return (
     <div className={styles.step}>
-      <StepHeader caption="Шаг 1 из 3" title="Машина" backTo={newLotPaths.root} />
+      <StepHeader caption="Шаг 1 из 4" title="Машина" backTo={newLotPaths.root} />
 
       {draft.car && (
         <div className={styles.notice}>

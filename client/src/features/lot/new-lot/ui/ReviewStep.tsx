@@ -28,18 +28,19 @@ export const ReviewStep = () => {
   const isStale = hasErrors(staleErrors)
 
   const handlePublish = () => {
-    publish.mutate(toCreateLotDto(car, details), {
+    publish.mutate(toCreateLotDto(car, details, draft.photos), {
       // Черновик удаляем после того, как шторка уехала, — иначе во время анимации мелькнёт список
       onSuccess: () => sheet.close(() => removeDraft(userId, draft.id)),
     })
   }
 
-  // 422 приходит с ошибками по полям — показываем их списком и даём вернуться к форме
+  // 422 приходит с ошибками по полям — показываем их списком и даём вернуться к нужному шагу
   const fieldErrors = isApiError(publish.error) && publish.error.details ? Object.values(publish.error.details).flat() : []
+  const isPhotoError = isApiError(publish.error) && Boolean(publish.error.details?.photoIds)
 
   return (
     <div className={styles.step}>
-      <StepHeader caption="Шаг 3 из 3" title="Проверка" backTo={newLotPaths.details(draft.id)} />
+      <StepHeader caption="Шаг 4 из 4" title="Проверка" backTo={newLotPaths.photos(draft.id)} />
 
       <section className={styles.card}>
         <div className={styles.sectionHeader}>
@@ -73,6 +74,20 @@ export const ReviewStep = () => {
         </dl>
       </section>
 
+      <section className={styles.card}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.stepCaption}>Фото · {draft.photos.length}</span>
+          <Button variant="ghost" onClick={() => navigate(newLotPaths.photos(draft.id))}>Изменить</Button>
+        </div>
+        {draft.photos.length > 0 ? (
+          <div className={styles.photoStrip}>
+            {draft.photos.map((photo, index) => <img key={photo.signedId} src={photo.url} alt={`Фото ${index + 1}`} />)}
+          </div>
+        ) : (
+          <span className={styles.muted}>Без фото — в каталоге будет заглушка</span>
+        )}
+      </section>
+
       {isStale && (
         <div className={styles.notice} role="alert">
           <ul className={styles.errorList}>
@@ -93,8 +108,11 @@ export const ReviewStep = () => {
                 {/* Сообщения у разных полей могут совпасть, поэтому ключ — индекс; список статичный */}
                 {fieldErrors.map((message, index) => <li key={index}>{message}</li>)}
               </ul>
-              <Button variant="secondary" onClick={() => navigate(newLotPaths.details(draft.id))}>
-                Исправить данные
+              <Button
+                variant="secondary"
+                onClick={() => navigate(isPhotoError ? newLotPaths.photos(draft.id) : newLotPaths.details(draft.id))}
+              >
+                {isPhotoError ? 'Исправить фото' : 'Исправить данные'}
               </Button>
             </>
           )}

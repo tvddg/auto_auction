@@ -77,7 +77,7 @@ export const toCreateCarDto = (form: CarFormDraft): CreateCarDto => ({
 })
 
 /** Рубли → копейки, datetime-local (местное время) → ISO в UTC. */
-export const toCreateLotDto = (car: DraftCar, details: LotDraft['details']): CreateLotDto => ({
+export const toCreateLotDto = (car: DraftCar, details: LotDraft['details'], photos: LotDraft['photos']): CreateLotDto => ({
   carId: car.id,
   vin: details.vin,
   mileage: Number(details.mileage),
@@ -86,6 +86,7 @@ export const toCreateLotDto = (car: DraftCar, details: LotDraft['details']): Cre
   startingPriceCents: Number(details.startingPrice) * 100,
   startsAt: new Date(details.startsAt).toISOString(),
   endsAt: new Date(details.endsAt).toISOString(),
+  photoIds: photos.map((photo) => photo.signedId),
 })
 
 export const formatRubles = (rubles: string) => `${Number(rubles).toLocaleString('ru-RU')} ₽`

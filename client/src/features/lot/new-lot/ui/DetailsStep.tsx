@@ -38,7 +38,7 @@ export const DetailsStep = () => {
 
     const nextErrors = validateDetails(details)
     setErrors(nextErrors)
-    if (!hasErrors(nextErrors)) navigate(newLotPaths.review(draft.id))
+    if (!hasErrors(nextErrors)) navigate(newLotPaths.photos(draft.id))
   }
 
   const field = (key: keyof LotDetailsDraft, label: string, options: FieldOptions = {}) => (
@@ -72,7 +72,7 @@ export const DetailsStep = () => {
 
   return (
     <form className={styles.step} onSubmit={handleSubmit} noValidate>
-      <StepHeader caption="Шаг 2 из 3" title="Объявление" backTo={newLotPaths.car(draft.id)} />
+      <StepHeader caption="Шаг 2 из 4" title="Объявление" backTo={newLotPaths.car(draft.id)} />
 
       <div className={styles.card}>
         <span className={styles.cardTitle}>{draft.car.title}</span>
@@ -93,7 +93,7 @@ export const DetailsStep = () => {
 
       <div className={styles.actions}>
         <Button type="submit" size="lg" trailing="→">
-          К проверке
+          К фото
         </Button>
       </div>
     </form>

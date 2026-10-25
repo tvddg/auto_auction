@@ -165,3 +165,148 @@ button.card:hover {
   font-size: var(--font-size-sm);
   color: var(--color-danger);
 }
+
+/* --- Фото --- */
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.photo,
+.photoPlaceholder,
+.photoAdd {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.photo {
+  background-color: var(--color-surface);
+}
+
+.photoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photoBadge {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
+.photoActions {
+  position: absolute;
+  right: var(--space-1);
+  bottom: var(--space-1);
+  display: flex;
+  gap: var(--space-1);
+}
+
+.photoActions button {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: rgb(0 0 0 / 65%);
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+
+.photoActions button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.photoPlaceholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px dashed var(--color-border-strong);
+  background-color: var(--color-surface);
+}
+
+.photoName {
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photoError {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+}
+
+.photoDismiss {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.photoAdd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  border: 1px dashed var(--color-border-strong);
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.photoAdd span {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.photoAdd:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+/* Лента миниатюр на экране проверки */
+.photoStrip {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.photoStrip img {
+  flex-shrink: 0;
+  width: 96px;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}

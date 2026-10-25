@@ -7,5 +7,6 @@ export {
   DraftRoute,
   DraftStart,
   DraftsList,
+  PhotosStep,
   ReviewStep,
 } from '@/features/lot/new-lot'

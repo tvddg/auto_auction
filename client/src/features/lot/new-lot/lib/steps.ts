@@ -6,12 +6,16 @@ export const newLotPaths = {
   car: (draftId: string) => `/new-lot/${draftId}/car`,
   carNew: (draftId: string) => `/new-lot/${draftId}/car/new`,
   details: (draftId: string) => `/new-lot/${draftId}/details`,
+  photos: (draftId: string) => `/new-lot/${draftId}/photos`,
   review: (draftId: string) => `/new-lot/${draftId}/review`,
 }
 
 export const isDetailsFilled = (details: LotDetailsDraft) => Object.values(details).every((value) => value.trim() !== '')
 
-/** Первый незаполненный шаг — туда ведёт «Продолжить» в списке черновиков и защита шагов от перескока. */
+/**
+ * Первый незаполненный шаг — туда ведёт «Продолжить» в списке черновиков и защита шагов от перескока.
+ * Фото необязательны, поэтому шаг «Фото» здесь не учитывается: заполненный черновик сразу идёт на проверку.
+ */
 export const nextStepPath = (draft: LotDraft) => {
   if (!draft.car) return newLotPaths.car(draft.id)
   if (!isDetailsFilled(draft.details)) return newLotPaths.details(draft.id)

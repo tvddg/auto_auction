@@ -9,6 +9,7 @@ import {
     DraftStart,
     DraftsList,
     NewLotPage,
+    PhotosStep,
     ReviewStep,
 } from "@/pages/new-lot";
 import { NotFoundPage } from "@/pages/not-found";
@@ -59,6 +60,7 @@ export function AppRoutes() {
                         <Route path="car" element={ <CarPickStep /> }/>
                         <Route path="car/new" element={ <CarCreateStep /> }/>
                         <Route path="details" element={ <DetailsStep /> }/>
+                        <Route path="photos" element={ <PhotosStep /> }/>
                         <Route path="review" element={ <ReviewStep /> }/>
                     </Route>
                     <Route path="*" element={ <NavigateKeepingState to="/new-lot" /> }/>
