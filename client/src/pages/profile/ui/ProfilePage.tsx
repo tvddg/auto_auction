@@ -46,7 +46,6 @@ export const ProfilePage = () => {
         <section className={styles.balance}>
           <span className={styles.balanceLabel}>Баланс</span>
           <span className={styles.balanceValue}>{formatRubles(user.depositCents)}</span>
-          <span className={styles.muted}>Ставка принимается, если баланс покрывает всю её сумму</span>
         </section>
 
         <section>
@@ -58,10 +57,7 @@ export const ProfilePage = () => {
             </div>
             <div className={styles.row}>
               <dt>Телефон</dt>
-              <dd>
-                {formatPhone(normalizePhoneDigits(user.phone))}
-                {user.phoneVerified && <span className={styles.verified}>подтверждён</span>}
-              </dd>
+              <dd>{formatPhone(normalizePhoneDigits(user.phone))}</dd>
             </div>
           </dl>
         </section>
