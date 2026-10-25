@@ -1,6 +1,6 @@
 import { apiEndpoints, apiRequest, apiRequestWithHeaders } from '@/shared/api'
 
-import type { CreateLotDto, Lot, LotCardDto, LotListFilters, LotListPage } from '../model/types'
+import type { CreateLotDto, Lot, LotCardDto, LotListFilters, LotListPage, UploadedPhoto } from '../model/types'
 
 export const LOTS_PAGE_SIZE = 20
 
@@ -29,3 +29,11 @@ export const fetchLots = async (filters: LotListFilters, page: number, signal?: 
 /** 409 lot_already_published — VIN уже в открытом лоте; 422 — ошибки по полям в details. */
 export const createLot = (dto: CreateLotDto) =>
   apiRequest<Lot>(apiEndpoints.lots.list, { method: 'POST', body: dto })
+
+/** Загружает фото для черновика. Сервер проверяет тип по содержимому: JPEG, PNG или WebP до 15 МБ. */
+export const uploadPhoto = (file: File, signal?: AbortSignal) => {
+  const body = new FormData()
+  body.append('file', file)
+
+  return apiRequest<UploadedPhoto>(apiEndpoints.photos.upload, { method: 'POST', body, signal })
+}

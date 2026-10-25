@@ -44,7 +44,7 @@ export type LotListPage = {
   page: number
 }
 
-/** Тело POST /lot. Цена — в копейках, даты — ISO-строки. */
+/** Тело POST /lot. Цена — в копейках, даты — ISO-строки, фото — signedId из POST /photo по порядку. */
 export type CreateLotDto = {
   carId: string
   vin: string
@@ -54,13 +54,28 @@ export type CreateLotDto = {
   startingPriceCents: number
   startsAt: string
   endsAt: string
+  photoIds: string[]
+}
+
+/** Фото опубликованного лота. Адреса относительные (/api/v1/storage/…). */
+export type LotPhoto = {
+  id: string
+  url: string
+  thumbUrl: string
+}
+
+/** Ответ POST /photo: файл загружен, но к лоту ещё не привязан. */
+export type UploadedPhoto = {
+  signedId: string
+  url: string
 }
 
 /** Ответ POST /lot и PATCH /lot/:id. */
-export type Lot = CreateLotDto & {
+export type Lot = Omit<CreateLotDto, 'photoIds'> & {
   id: string
   userId: string
   status: 'upcoming' | 'active' | 'sold' | 'unsold' | 'cancelled'
   currentPriceCents: number
   bidCount: number
+  photos: LotPhoto[]
 }

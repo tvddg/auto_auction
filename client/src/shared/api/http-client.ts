@@ -29,8 +29,11 @@ const buildRequest = (path: string, config: RequestConfig): [string, RequestInit
   const method = config.method ?? 'GET'
   const headers = new Headers({ Accept: 'application/json' })
 
-  let body: string | undefined
-  if (config.body !== undefined) {
+  let body: string | FormData | undefined
+  if (config.body instanceof FormData) {
+    // Файлы: Content-Type с boundary браузер выставит сам — вручную его задавать нельзя
+    body = config.body
+  } else if (config.body !== undefined) {
     headers.set('Content-Type', 'application/json')
     body = JSON.stringify(config.body)
   }
