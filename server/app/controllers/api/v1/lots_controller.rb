@@ -7,6 +7,7 @@ module Api
       UPDATE_FIELDS = %i[startingPriceCents startsAt endsAt].freeze
 
       before_action :authenticate!, only: %i[create update destroy]
+      before_action :authenticate_optional!, only: :show
       before_action :find_managed_lot, only: %i[update destroy]
 
       rescue_from LotCatalog::InvalidParams, LotPhotoBlobs::Invalid do |error|
@@ -25,7 +26,8 @@ module Api
 
       # GET /api/v1/lot/:id
       def show
-        render json: LotSerializer.detail(Lot.includes(:car, :seller, photos: { image_attachment: :blob }).find(params[:id]))
+        lot = Lot.includes(:car, :seller, photos: { image_attachment: :blob }).find(params[:id])
+        render json: LotSerializer.detail(lot, viewer: current_user)
       end
 
       # POST /api/v1/lot

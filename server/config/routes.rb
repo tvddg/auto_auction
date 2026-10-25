@@ -18,7 +18,10 @@ Rails.application.routes.draw do
 
       # Пути в единственном числе — как в контракте API
       resources :cars, path: "car", only: %i[index create show]
-      resources :lots, path: "lot", only: %i[index show create update destroy]
+      resources :lots, path: "lot", only: %i[index show create update destroy] do
+        # Лента принятых ставок лота: GET /api/v1/lot/:lot_id/bids
+        resources :bids, only: :index
+      end
       resources :bids, path: "bid", only: :create
       # Фото для черновика лота: файл загружается сразу, к лоту привязывается в POST /lot
       resources :photos, path: "photo", only: :create

@@ -72,6 +72,5 @@ class BidPlacement
     nil
   end
 
-  # Текущая цена плюс шаг для неё — так в описании причины amount_too_low
-  def minimum_amount = @lot.current_price_cents + BidStep.step_for(@lot.current_price_cents)
+  def minimum_amount = @lot.min_next_bid_cents
 end

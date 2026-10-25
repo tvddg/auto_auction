@@ -392,7 +392,10 @@ paths:
     get:
       tags: [Lots]
       summary: Get Lot Info by Lot ID
-      description: Публичная страница лота. Открывается для лота в любом статусе, включая снятые.
+      description: |
+        Публичная страница лота. Открывается для лота в любом статусе, включая снятые.
+        С токеном в ответе есть `viewer` (продавец ли пользователь и лидирует ли его ставка);
+        с недействительным токеном — 401, чтобы клиент продлил сессию.
       operationId: get-lot-lotId
       parameters:
         - $ref: '#/components/parameters/LotId'
@@ -473,6 +476,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  '/lot/{lotId}/bids':
+    get:
+      tags: [Bids]
+      summary: Get Lot Bids Feed
+      description: |
+        Принятые ставки лота, новые сверху (до 50). Публичный: без токена участники только замаскированы,
+        с токеном ставки вошедшего помечены `isMine`. С недействительным токеном — 401, чтобы клиент
+        продлил сессию. Отклонённые ставки не показываются. Общее число принятых ставок — в `X-Total-Count`.
+      operationId: get-lot-bids
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/LotId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Total-Count:
+              description: Число принятых ставок лота.
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BidFeedItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /photo:
     post:
       tags: [Lots]
@@ -1072,6 +1107,47 @@ components:
           description: Фото по порядку, первое — обложка.
           items:
             $ref: '#/components/schemas/LotPhoto'
+        bidStep:
+          type: integer
+          format: int64
+          nullable: true
+          description: Шаг ставки для текущей цены, в копейках. null, если шаги не настроены.
+        minNextBid:
+          type: integer
+          format: int64
+          nullable: true
+          description: Минимальная следующая ставка (текущая цена + шаг), в копейках.
+        viewer:
+          type: object
+          nullable: true
+          description: Только для вошедшего пользователя.
+          required: [isSeller, isLeader]
+          properties:
+            isSeller:
+              type: boolean
+            isLeader:
+              type: boolean
+    BidFeedItem:
+      type: object
+      required: [id, seq, amountCents, bidder, isMine, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        seq:
+          type: integer
+          minimum: 1
+        amountCents:
+          type: integer
+          format: int64
+        bidder:
+          type: string
+          description: Замаскированное имя участника, например «d***r77».
+        isMine:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
     UploadedPhoto:
       type: object
       required: [signedId, url]

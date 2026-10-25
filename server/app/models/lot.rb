@@ -63,6 +63,12 @@ class Lot < ApplicationRecord
 
   def editable?(now = Time.current) = phase(now) == "upcoming"
 
+  # Шаг ставки для текущей цены и минимальная следующая ставка — правило причины amount_too_low.
+  # Здесь, а не в BidPlacement, чтобы страница лота показывала ту же сумму, что проверит сервер.
+  def bid_step_cents = BidStep.step_for(current_price_cents)
+
+  def min_next_bid_cents = current_price_cents + bid_step_cents
+
   private
 
   def current_price_not_below_start

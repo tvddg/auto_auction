@@ -120,4 +120,49 @@ class BidsApiTest < ActionDispatch::IntegrationTest
     assert_response :service_unavailable
     assert_equal "bid_steps_not_configured", error_code
   end
+
+  # --- лента ставок лота ---
+
+  test "лента: только принятые ставки, новые сверху, участники замаскированы, общее число в заголовке" do
+    get "/api/v1/lot/#{@lot.id}/bids"
+
+    assert_response :success
+    feed = response.parsed_body
+    assert_equal [ 3, 2, 1 ], feed.map { |bid| bid["seq"] }
+    assert_equal [ 165_000_000, 160_000_000, 155_000_000 ], feed.map { |bid| bid["amountCents"] }
+    assert_equal "3", response.headers["X-Total-Count"]
+
+    # seller.two@example.com → «s***two», bidder.three@example.com → «b***ree»
+    assert_equal %w[s***two b***ree s***two], feed.map { |bid| bid["bidder"] }
+    assert feed.none? { |bid| bid["isMine"] }
+    assert feed.none? { |bid| bid.to_s.include?("@") }
+  end
+
+  test "лента помечает ставки вошедшего пользователя" do
+    get "/api/v1/lot/#{@lot.id}/bids", headers: @headers
+
+    assert_equal [ false, true, false ], response.parsed_body.map { |bid| bid["isMine"] }
+  end
+
+  test "имя пользователя важнее почты при маскировании, короткое — только первая буква" do
+    users(:two).update!(name: "Alexander")
+    users(:three).update!(name: "Ivan")
+    get "/api/v1/lot/#{@lot.id}/bids"
+
+    assert_equal %w[A***der I*** A***der], response.parsed_body.map { |bid| bid["bidder"] }
+  end
+
+  test "лента пустая у лота без ставок и 404 у несуществующего" do
+    get "/api/v1/lot/#{lots(:model_3_upcoming).id}/bids"
+    assert_equal [], response.parsed_body
+
+    get "/api/v1/lot/#{SecureRandom.uuid}/bids"
+    assert_response :not_found
+  end
+
+  test "недействительный токен на публичной ленте — 401, чтобы клиент продлил сессию" do
+    get "/api/v1/lot/#{@lot.id}/bids", headers: { "Authorization" => "Bearer broken" }
+
+    assert_response :unauthorized
+  end
 end

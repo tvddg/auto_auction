@@ -164,6 +164,36 @@ class LotsApiTest < ActionDispatch::IntegrationTest
     assert_equal 2487, car["engineVolume"]
   end
 
+  test "страница лота отдаёт шаг и минимальную следующую ставку" do
+    get "/api/v1/lot/#{lots(:camry_active).id}"
+
+    # цена 165 000 000, шаг для диапазона до 3 млн ₽ — 2 500 000
+    assert_equal 2_500_000, response.parsed_body["bidStep"]
+    assert_equal 167_500_000, response.parsed_body["minNextBid"]
+  end
+
+  test "блок viewer — только для вошедшего: продавец и лидер" do
+    lot = lots(:camry_active)
+
+    get "/api/v1/lot/#{lot.id}"
+    assert_nil response.parsed_body["viewer"]
+
+    get "/api/v1/lot/#{lot.id}", headers: auth_headers(users(:one))
+    assert_equal({ "isSeller" => true, "isLeader" => false }, response.parsed_body["viewer"])
+
+    get "/api/v1/lot/#{lot.id}", headers: auth_headers(users(:two))
+    assert_equal({ "isSeller" => false, "isLeader" => true }, response.parsed_body["viewer"])
+  end
+
+  test "без настроенных шагов страница открывается, шаг пустой" do
+    BidStep.delete_all
+    get "/api/v1/lot/#{lots(:camry_active).id}"
+
+    assert_response :success
+    assert_nil response.parsed_body["bidStep"]
+    assert_nil response.parsed_body["minNextBid"]
+  end
+
   test "несуществующий лот — 404" do
     get "/api/v1/lot/#{SecureRandom.uuid}"
 

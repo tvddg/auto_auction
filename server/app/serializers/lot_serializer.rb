@@ -46,7 +46,7 @@ module LotSerializer
     payload
   end
 
-  def detail(lot, now: Time.current)
+  def detail(lot, now: Time.current, viewer: nil)
     car = lot.car
 
     {
@@ -75,8 +75,18 @@ module LotSerializer
       startsAt: lot.starts_at.iso8601,
       endsAt: lot.ends_at.iso8601,
       bidCount: lot.bid_count,
-      photos: photos(lot)
+      photos: photos(lot),
+      **bidding(lot),
+      # Только для вошедшего: продавцу не показываем форму ставки, лидеру — пишем, что он лидирует
+      viewer: viewer && { isSeller: lot.seller_id == viewer.id, isLeader: lot.leader_id == viewer.id }
     }
+  end
+
+  # Шаг и минимальная следующая ставка. null, если шаги ставок не настроены
+  def bidding(lot)
+    { bidStep: lot.bid_step_cents, minNextBid: lot.min_next_bid_cents }
+  rescue BidStep::NotConfigured
+    { bidStep: nil, minNextBid: nil }
   end
 
   # Фото по порядку: url — для просмотра, thumbUrl — для миниатюр и карточек
