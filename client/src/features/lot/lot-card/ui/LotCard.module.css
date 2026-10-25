@@ -126,12 +126,25 @@
     color: var(--color-text-muted);
 }
 
+/*
+ * Цена переносится, если не помещается в карточку, в таком порядке:
+ *  1. после «от» — число с «₽» уходит на новую строку целиком (.priceValue — inline-block);
+ *  2. между разрядами — там стоят <wbr>, balance делит строки поровну: «150 000 / 000 ₽»;
+ *  3. внутри разряда — только если даже один разряд шире карточки, но не за её край.
+ */
 .price {
     margin: var(--space-2) 0;
     font-size: var(--font-size-2xl);
     font-weight: 800;
-    white-space: nowrap;
+    line-height: 1.2;
     color: var(--color-text);
+}
+
+.priceValue {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
 }
 
 .footer {

@@ -6,7 +6,6 @@ import {
     formatBets,
     formatDay,
     formatMileage,
-    formatPrice,
     formatRemaining,
     formatTime,
 } from "../lib/format";
@@ -42,6 +41,23 @@ function TintedIcon({ name }: { name: IconName }) {
         style={{ "--icon": `url(${iconSources[name]})` } as CSSProperties}
         aria-hidden
     />
+}
+
+/**
+ * Цена, которая переносится только между разрядами: «150 000 <wbr>000 ₽».
+ * Разряды и «₽» склеены неразрывными пробелами, а <wbr> разрешает перенос именно в этих местах.
+ * Вся цена — inline-block: если не помещается рядом с «от», уходит на новую строку целиком.
+ */
+function PriceValue({ value }: { value: number }) {
+    const groups = value.toLocaleString("ru-RU").split(/[\u00A0\u202F\s]/);
+
+    return <span className={cl.priceValue}>
+        {groups.map((group, index) => <span key={index}>
+            {index > 0 && <>{"\u00A0"}<wbr /></>}
+            {group}
+        </span>)}
+        {"\u00A0₽"}
+    </span>
 }
 
 function ActiveBadge({ remainingTime }: { remainingTime: number }) {
@@ -101,7 +117,9 @@ export function LotCard(props: LotCardProps) {
             <p className={cl.info}>
                 {shortInfo.year} · {formatMileage(shortInfo.mileage)} · {shortInfo.gear}
             </p>
-            <p className={cl.price}>{pricePrefix}{formatPrice(price)}</p>
+            <p className={cl.price}>
+                {pricePrefix}<PriceValue value={price} />
+            </p>
             <div className={cl.footer}>{footer}</div>
         </article>
     </li>;

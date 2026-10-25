@@ -1,7 +1,5 @@
 const pad = (value: number) => String(value).padStart(2, '0')
 
-export const formatPrice = (value: number) => `${value.toLocaleString('ru-RU')} ₽`
-
 export const formatMileage = (value: number) => `${value.toLocaleString('ru-RU')} км`
 
 export const formatRemaining = (totalSeconds: number) => {
