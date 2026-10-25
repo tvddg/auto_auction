@@ -74,9 +74,6 @@ export const LotPage = () => {
           <p className={styles.notice}>Ставки откроются {formatDateTime(lot.startsAt)}</p>
         )}
 
-        {/* Только владельцу и только когда сервер разрешает: removal = null — завершённый лот со ставками */}
-        {lot.viewer?.removal && <DeleteLot lotId={lot.id} removal={lot.viewer.removal} />}
-
         <BidFeedList lot={lot} />
         <LotSpecs car={car} />
 
@@ -101,6 +98,9 @@ export const LotPage = () => {
             Продавец: {lot.sellerInfo.name}
           </p>
         )}
+
+        {/* В самом низу — действие владельца. Только когда сервер разрешает: removal = null — завершённый лот со ставками */}
+        {lot.viewer?.removal && <DeleteLot lotId={lot.id} removal={lot.viewer.removal} />}
       </div>
     </main>
   )
