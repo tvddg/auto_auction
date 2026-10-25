@@ -14,6 +14,7 @@ import {
     ReviewStep,
 } from "@/pages/new-lot";
 import { MyBidsPage } from "@/pages/my-bids";
+import { MyLotsPage } from "@/pages/my-lots";
 import { NotFoundPage } from "@/pages/not-found";
 import { ProfilePage } from "@/pages/profile";
 import { getBackgroundLocation, NavigateKeepingState } from "@/shared/lib";
@@ -46,9 +47,8 @@ export function AppRoutes() {
             <Route path="lot/:lotId" element={ <LotPage /> }/>
 
             <Route element={ <RequireAuth /> }>
-                {/* TODO: страницы «Мои лоты» пока нет — после входа показываем 404 */}
                 <Route path="bets" element={ <MyBidsPage /> }/>
-                <Route path="my-lots" element={ <NotFoundPage /> }/>
+                <Route path="my-lots" element={ <MyLotsPage /> }/>
                 <Route path="profile" element={ <ProfilePage /> }/>
             </Route>
 
