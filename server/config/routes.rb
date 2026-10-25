@@ -24,9 +24,10 @@ Rails.application.routes.draw do
       end
       resources :bids, path: "bid", only: :create
 
-      # Данные текущего пользователя: GET /api/v1/my/bids — «Мои ставки»
+      # Данные текущего пользователя: «Мои ставки» и «Мои лоты»
       namespace :my do
         resources :bids, only: :index
+        resources :lots, only: :index
       end
       # Фото для черновика лота: файл загружается сразу, к лоту привязывается в POST /lot
       resources :photos, path: "photo", only: :create

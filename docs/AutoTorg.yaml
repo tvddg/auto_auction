@@ -529,6 +529,27 @@ paths:
                   $ref: '#/components/schemas/MyBid'
         '401':
           $ref: '#/components/responses/Unauthorized'
+  /my/lots:
+    get:
+      tags: [Lots]
+      summary: Get My Lots
+      description: |
+        «Мои лоты»: все опубликованные лоты пользователя в любом статусе, новые сверху.
+        Черновики хранятся на клиенте и сюда не входят.
+      operationId: get-my-lots
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyLot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /photo:
     post:
       tags: [Lots]
@@ -1155,6 +1176,38 @@ components:
               description: |
                 Только для продавца — что сделает DELETE /lot/{lotId}: `delete` — удалит лот (ставок нет),
                 `cancel` — снимет с торгов (ставки есть, торги не завершены), null — удалить нельзя.
+    MyLot:
+      type: object
+      required: [lotId, title, imageUrl, status, startingPrice, currentPrice, bidCount, startsAt, endsAt, buyer]
+      properties:
+        lotId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/LotStatus'
+        startingPrice:
+          type: integer
+          format: int64
+        currentPrice:
+          type: integer
+          format: int64
+        bidCount:
+          type: integer
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        buyer:
+          type: string
+          nullable: true
+          description: Замаскированный победитель — только у проданного лота.
     MyBid:
       type: object
       required: [lotId, title, imageUrl, myBid, currentPrice, isLeader, bidCount, endsAt]

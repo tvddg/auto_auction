@@ -95,6 +95,24 @@ module LotSerializer
     { bidStep: nil, minNextBid: nil }
   end
 
+  # Строка «Моих лотов» у продавца. buyer — замаскированный победитель, только у проданного лота
+  def my_lot(lot, now: Time.current)
+    phase = lot.phase(now)
+
+    {
+      lotId: lot.id,
+      title: lot.car.title,
+      imageUrl: lot.photos.first&.then { |photo| PhotoPaths.card(photo.image) },
+      status: phase,
+      startingPrice: lot.starting_price_cents,
+      currentPrice: lot.current_price_cents,
+      bidCount: lot.bid_count,
+      startsAt: lot.starts_at.iso8601,
+      endsAt: lot.ends_at.iso8601,
+      buyer: phase == "sold" && lot.leader ? BidSerializer.mask_bidder(lot.leader) : nil
+    }
+  end
+
   # Строка «Моих ставок»: моя ставка против текущей цены и кто лидирует
   def my_bid(lot, my_bid_cents:, viewer:)
     {
