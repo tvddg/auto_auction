@@ -63,6 +63,16 @@ class Lot < ApplicationRecord
 
   def editable?(now = Time.current) = phase(now) == "upcoming"
 
+  # Что сделает DELETE /lot/:id. Без ставок (включая отклонённые) — удалит совсем;
+  # со ставками до конца торгов — снимет с торгов; завершённый лот со ставками — нельзя (nil).
+  # Одно правило и для удаления, и для страницы лота: владелец заранее видит, что произойдёт.
+  def removal_mode(now = Time.current)
+    return :delete if bids.none?
+    return :cancel if phase(now).in?(%w[upcoming active])
+
+    nil
+  end
+
   # Шаг ставки для текущей цены и минимальная следующая ставка — правило причины amount_too_low.
   # Здесь, а не в BidPlacement, чтобы страница лота показывала ту же сумму, что проверит сервер.
   def bid_step_cents = BidStep.step_for(current_price_cents)

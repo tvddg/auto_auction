@@ -179,10 +179,27 @@ class LotsApiTest < ActionDispatch::IntegrationTest
     assert_nil response.parsed_body["viewer"]
 
     get "/api/v1/lot/#{lot.id}", headers: auth_headers(users(:one))
-    assert_equal({ "isSeller" => true, "isLeader" => false }, response.parsed_body["viewer"])
+    assert_equal({ "isSeller" => true, "isLeader" => false, "removal" => "cancel" }, response.parsed_body["viewer"])
 
     get "/api/v1/lot/#{lot.id}", headers: auth_headers(users(:two))
-    assert_equal({ "isSeller" => false, "isLeader" => true }, response.parsed_body["viewer"])
+    assert_equal({ "isSeller" => false, "isLeader" => true, "removal" => nil }, response.parsed_body["viewer"])
+  end
+
+  test "removal подсказывает владельцу, что сделает удаление" do
+    headers = auth_headers(users(:three))
+
+    lot = create_lot
+    get "/api/v1/lot/#{lot.id}", headers: headers
+    assert_equal "delete", response.parsed_body.dig("viewer", "removal")
+
+    # Отклонённая ставка тоже считается: такой лот уже не удалить, только снять
+    lot.bids.create!(user: users(:two), amount_cents: 1, status: :rejected, rejection_reason: :lot_not_active, idempotency_key: SecureRandom.uuid)
+    get "/api/v1/lot/#{lot.id}", headers: headers
+    assert_equal "cancel", response.parsed_body.dig("viewer", "removal")
+
+    lot.update!(status: :sold)
+    get "/api/v1/lot/#{lot.id}", headers: headers
+    assert_nil response.parsed_body.dig("viewer", "removal")
   end
 
   test "без настроенных шагов страница открывается, шаг пустой" do

@@ -77,9 +77,15 @@ module LotSerializer
       bidCount: lot.bid_count,
       photos: photos(lot),
       **bidding(lot),
-      # Только для вошедшего: продавцу не показываем форму ставки, лидеру — пишем, что он лидирует
-      viewer: viewer && { isSeller: lot.seller_id == viewer.id, isLeader: lot.leader_id == viewer.id }
+      viewer: viewer && viewer_info(lot, viewer)
     }
+  end
+
+  # Только для вошедшего: продавцу не показываем форму ставки и говорим, что сделает удаление
+  # (delete — удалить, cancel — снять с торгов, null — нельзя); лидеру — что он лидирует.
+  def viewer_info(lot, viewer)
+    is_seller = lot.seller_id == viewer.id
+    { isSeller: is_seller, isLeader: lot.leader_id == viewer.id, removal: is_seller ? lot.removal_mode : nil }
   end
 
   # Шаг и минимальная следующая ставка. null, если шаги ставок не настроены

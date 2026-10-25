@@ -72,12 +72,10 @@ module Api
 
       # DELETE /api/v1/lot/:id — без ставок лот удаляется, со ставками снимается с торгов
       def destroy
-        if @lot.bids.none?
-          @lot.destroy!
-        elsif @lot.phase.in?(%w[upcoming active])
-          @lot.cancelled!
-        else
-          return render_error(:conflict, "lot_finished", "Лот уже завершён или снят с торгов")
+        case @lot.removal_mode
+        when :delete then @lot.destroy!
+        when :cancel then @lot.cancelled!
+        else return render_error(:conflict, "lot_finished", "Лот уже завершён или снят с торгов")
         end
 
         head :no_content

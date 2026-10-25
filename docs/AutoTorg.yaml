@@ -1121,12 +1121,19 @@ components:
           type: object
           nullable: true
           description: Только для вошедшего пользователя.
-          required: [isSeller, isLeader]
+          required: [isSeller, isLeader, removal]
           properties:
             isSeller:
               type: boolean
             isLeader:
               type: boolean
+            removal:
+              type: string
+              nullable: true
+              enum: [delete, cancel, null]
+              description: |
+                Только для продавца — что сделает DELETE /lot/{lotId}: `delete` — удалит лот (ставок нет),
+                `cancel` — снимет с торгов (ставки есть, торги не завершены), null — удалить нельзя.
     BidFeedItem:
       type: object
       required: [id, seq, amountCents, bidder, isMine, createdAt]
