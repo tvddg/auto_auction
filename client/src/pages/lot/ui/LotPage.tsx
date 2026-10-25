@@ -1,6 +1,7 @@
 import { useNavigate, useParams, useLocation } from 'react-router'
 
 import { useLotQuery } from '@/entities/lot'
+import { DeleteLot } from '@/features/lot/delete-lot'
 import { PlaceBid } from '@/features/lot/place-bid'
 import { getErrorMessage, isApiError } from '@/shared/api'
 import { Button, Icon, TintedIcon } from '@/shared/ui'
@@ -72,6 +73,9 @@ export const LotPage = () => {
         {lot.status === 'upcoming' && (
           <p className={styles.notice}>Ставки откроются {formatDateTime(lot.startsAt)}</p>
         )}
+
+        {/* Только владельцу и только когда сервер разрешает: removal = null — завершённый лот со ставками */}
+        {lot.viewer?.removal && <DeleteLot lotId={lot.id} removal={lot.viewer.removal} />}
 
         <BidFeedList lot={lot} />
         <LotSpecs car={car} />

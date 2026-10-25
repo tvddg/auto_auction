@@ -46,3 +46,6 @@ export const fetchLotBids = async (id: string, signal?: AbortSignal): Promise<Bi
   const { data, headers } = await apiRequestWithHeaders<BidFeedItem[]>(apiEndpoints.lots.bids(id), { signal })
   return { items: data, total: Number(headers.get('X-Total-Count') ?? data.length) }
 }
+
+/** Без ставок лот удаляется, со ставками до конца торгов — снимается с торгов (см. viewer.removal). */
+export const deleteLot = (id: string) => apiRequest<void>(apiEndpoints.lots.byId(id), { method: 'DELETE' })

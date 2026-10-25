@@ -1,4 +1,4 @@
-export { createLot, fetchLot, fetchLotBids, fetchLots, LOTS_PAGE_SIZE, uploadPhoto } from './api/lot.api'
+export { createLot, deleteLot, fetchLot, fetchLotBids, fetchLots, LOTS_PAGE_SIZE, uploadPhoto } from './api/lot.api'
 export { LOT_POLL_INTERVAL_MS, lotKeys, useLotBidsQuery, useLotQuery, useLotsInfiniteQuery } from './api/lot.queries'
 export type {
   BidFeed,
@@ -13,6 +13,7 @@ export type {
   LotListPage,
   LotListSort,
   LotListStatus,
+  LotRemoval,
   LotStatus,
   UploadedPhoto,
 } from './model/types'

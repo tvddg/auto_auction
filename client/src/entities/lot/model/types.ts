@@ -119,8 +119,15 @@ export type LotDetail = {
   /** Текущая цена + шаг — меньше сервер не примет */
   minNextBid: number | null
   /** Только для вошедшего пользователя */
-  viewer: { isSeller: boolean; isLeader: boolean } | null
+  viewer: {
+    isSeller: boolean
+    isLeader: boolean
+    /** Только продавцу: что сделает удаление — удалит, снимет с торгов или нельзя (null) */
+    removal: LotRemoval | null
+  } | null
 }
+
+export type LotRemoval = 'delete' | 'cancel'
 
 /** Строка ленты ставок: участник замаскирован, свои ставки помечены isMine. */
 export type BidFeedItem = {
