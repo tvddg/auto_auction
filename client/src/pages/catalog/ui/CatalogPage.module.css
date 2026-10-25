@@ -25,8 +25,13 @@
     color: var(--color-text-muted);
 }
 
-.cardsGrid {
-    margin-bottom: 3.5rem;
+/*
+ * Место под закреплённым нижним меню. Именно padding, а не margin у последнего блока:
+ * нижний margin может «схлопнуться» с отступами родителей и не попасть в прокручиваемую высоту —
+ * тогда последний ряд карточек остаётся под меню. Плюс запас, чтобы карточка не прилипала к меню.
+ */
+.page {
+    padding-bottom: calc(var(--nav-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
 }
 
 .status {

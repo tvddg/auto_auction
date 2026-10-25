@@ -51,6 +51,9 @@
   --control-height-md: 40px;
   --control-height-lg: 46px;
 
+  /* Нижнее меню: высота без безопасной зоны телефона — её добавляем через env() там, где нужно */
+  --nav-bar-height: 3.5rem;
+
   --otp-cell-size: 48px;
 
   --transition-fast: 140ms ease;

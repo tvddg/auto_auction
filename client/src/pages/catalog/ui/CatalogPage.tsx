@@ -86,7 +86,7 @@ export function CatalogPage() {
 
     return <>
         <Header />
-        <main>
+        <main className={cl.page}>
             <div className={cl.headerTab}>
                 <SearchField
                     value={search}
@@ -104,7 +104,7 @@ export function CatalogPage() {
                 <div className={cl.separator} />
             </div>
 
-            <div className={cl.cardsGrid} aria-busy={lotsQuery.isFetching}>
+            <div aria-busy={lotsQuery.isFetching}>
                 {content}
             </div>
 
