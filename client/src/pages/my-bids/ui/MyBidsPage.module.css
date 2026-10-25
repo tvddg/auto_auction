@@ -1,0 +1,156 @@
+/* «Мои ставки» — по макету 04 */
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  /* Место под закреплённым нижним меню — как в каталоге */
+  padding-bottom: calc(var(--nav-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
+}
+
+.heading {
+  margin: 0;
+  padding: var(--space-7) var(--space-4) var(--space-5);
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* Вкладка одна — «Активные»: красное подчёркивание и счётчик, как в макете */
+.tabs {
+  display: flex;
+  padding: 0 var(--space-4);
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+.tab {
+  display: inline-flex;
+  gap: var(--space-1);
+  margin-bottom: -2px;
+  padding-bottom: var(--space-3);
+  border-bottom: 3px solid var(--color-accent);
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+}
+
+.tabCount {
+  color: var(--color-accent);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Строка: цветная полоса слева — красная «перебита», зелёная «лидер» */
+.row {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-strong);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--transition-fast);
+}
+
+.row:hover {
+  background-color: var(--color-bg-elevated);
+}
+
+.thumb {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32%;
+  max-width: 180px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-left: 4px solid var(--row-accent);
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.leading {
+  --row-accent: var(--color-success);
+}
+
+.outbid {
+  --row-accent: var(--color-accent);
+}
+
+.info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--font-size-xl);
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.badgeLeading {
+  background-color: var(--color-success);
+  color: var(--color-bg);
+}
+
+.badgeOutbid {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.timer {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--color-text-muted);
+}
