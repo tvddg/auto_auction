@@ -1,6 +1,6 @@
-import { apiEndpoints, apiRequestWithHeaders } from '@/shared/api'
+import { apiEndpoints, apiRequest, apiRequestWithHeaders } from '@/shared/api'
 
-import type { LotCardDto, LotListFilters, LotListPage } from '../model/types'
+import type { CreateLotDto, Lot, LotCardDto, LotListFilters, LotListPage } from '../model/types'
 
 export const LOTS_PAGE_SIZE = 20
 
@@ -25,3 +25,7 @@ export const fetchLots = async (filters: LotListFilters, page: number, signal?: 
 
   return { items: data, total: Number(headers.get('X-Total-Count') ?? data.length), page }
 }
+
+/** 409 lot_already_published — VIN уже в открытом лоте; 422 — ошибки по полям в details. */
+export const createLot = (dto: CreateLotDto) =>
+  apiRequest<Lot>(apiEndpoints.lots.list, { method: 'POST', body: dto })

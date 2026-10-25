@@ -43,3 +43,24 @@ export type LotListPage = {
   total: number
   page: number
 }
+
+/** Тело POST /lot. Цена — в копейках, даты — ISO-строки. */
+export type CreateLotDto = {
+  carId: string
+  vin: string
+  mileage: number
+  color: string
+  city: string
+  startingPriceCents: number
+  startsAt: string
+  endsAt: string
+}
+
+/** Ответ POST /lot и PATCH /lot/:id. */
+export type Lot = CreateLotDto & {
+  id: string
+  userId: string
+  status: 'upcoming' | 'active' | 'sold' | 'unsold' | 'cancelled'
+  currentPriceCents: number
+  bidCount: number
+}

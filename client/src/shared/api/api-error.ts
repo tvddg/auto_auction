@@ -16,6 +16,7 @@ export type ApiErrorBody = {
     code?: string
     message?: string
     details?: Record<string, string[]>
+    [key: string]: unknown
   }
 }
 
@@ -23,18 +24,21 @@ export class ApiError extends Error {
   readonly status: number
   readonly code: ApiErrorCode
   readonly details: Record<string, string[]> | undefined
+  readonly payload: Record<string, unknown>
 
   constructor(params: {
     status: number
     code?: ApiErrorCode
     message?: string
     details?: Record<string, string[]>
+    payload?: Record<string, unknown>
   }) {
     super(params.message ?? 'Не удалось выполнить запрос')
     this.name = 'ApiError'
     this.status = params.status
     this.code = params.code ?? apiErrorCodes.unknownError
     this.details = params.details
+    this.payload = params.payload ?? {}
   }
 }
 

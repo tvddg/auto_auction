@@ -112,6 +112,7 @@ const parseResponse = async <T>(response: Response): Promise<T> => {
     code: error?.code ?? (response.status === 401 ? apiErrorCodes.unauthorized : apiErrorCodes.unknownError),
     message: error?.message,
     details: error?.details,
+    payload: error,
   })
 }
 

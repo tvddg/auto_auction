@@ -11,4 +11,8 @@ export const apiEndpoints = {
   lots: {
     list: '/lot',
   },
+  cars: {
+    list: '/car',
+    byId: (id: string) => `/car/${encodeURIComponent(id)}`,
+  },
 } as const
