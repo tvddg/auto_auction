@@ -21,6 +21,8 @@ class BidPlacement
     existing = find_existing
     return replay(existing) if existing
 
+    # TODO(human): разослать LotChannel-событие { type: "bid_placed", lotId: } для принятой ставки —
+    # только после коммита и не для повторов
     @lot.with_lock do
       # Параллельный запрос с тем же ключом мог успеть, пока ждали блокировку
       existing = find_existing
