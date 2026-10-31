@@ -23,6 +23,11 @@ export default defineConfig(({ mode }) => {
           target: env.API_PROXY_TARGET ?? 'http://localhost:3000',
           changeOrigin: true,
         },
+        // WebSocket ActionCable: ws: true пробрасывает upgrade-запрос
+        '/cable': {
+          target: env.API_PROXY_TARGET ?? 'http://localhost:3000',
+          ws: true,
+        },
       },
     },
   }
