@@ -24,22 +24,16 @@ export const useLotsInfiniteQuery = (filters: LotListFilters) =>
     placeholderData: keepPreviousData,
   })
 
-/** Пока идут торги, цену и ленту обновляем опросом; потом заменим на WebSocket. */
-export const LOT_POLL_INTERVAL_MS = 5000
-
 export const useLotQuery = (id: string) =>
   useQuery({
     queryKey: lotKeys.detail(id),
     queryFn: ({ signal }) => fetchLot(id, signal),
-    // Опрашиваем, только пока торги идут: у завершённого или будущего лота цена не меняется
-    refetchInterval: (query) => (query.state.data?.status === 'active' ? LOT_POLL_INTERVAL_MS : false),
   })
 
-export const useLotBidsQuery = (id: string, { poll }: { poll: boolean }) =>
+export const useLotBidsQuery = (id: string) =>
   useQuery({
     queryKey: lotKeys.bids(id),
     queryFn: ({ signal }) => fetchLotBids(id, signal),
-    refetchInterval: poll ? LOT_POLL_INTERVAL_MS : false,
   })
 
 /** «Мои лоты». Пока у продавца идут торги, цена и число ставок меняются — обновляем раз в 10 секунд */

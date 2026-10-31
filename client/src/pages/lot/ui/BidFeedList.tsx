@@ -13,7 +13,7 @@ const COLLAPSED_COUNT = 3
 /** Лента ставок: новые сверху, свои — зелёным с пометкой «вы». */
 export const BidFeedList = ({ lot }: { lot: LotDetail }) => {
   const [expanded, setExpanded] = useState(false)
-  const feed = useLotBidsQuery(lot.id, { poll: lot.status === 'active' })
+  const feed = useLotBidsQuery(lot.id)
 
   const items = feed.data?.items ?? []
   const visible = expanded ? items : items.slice(0, COLLAPSED_COUNT)

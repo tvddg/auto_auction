@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useLocation } from 'react-router'
 
-import { useLotQuery } from '@/entities/lot'
+import { useLotChannel, useLotQuery } from '@/entities/lot'
 import { DeleteLot } from '@/features/lot/delete-lot'
 import { PlaceBid } from '@/features/lot/place-bid'
 import { getErrorMessage, isApiError } from '@/shared/api'
@@ -22,6 +22,7 @@ export const LotPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const lotQuery = useLotQuery(lotId)
+  useLotChannel(lotId)
 
   // Пришли из каталога — возвращаемся туда же с фильтрами; открыли по ссылке — в каталог
   const goBack = () => (location.key !== 'default' ? navigate(-1) : navigate('/catalog'))
