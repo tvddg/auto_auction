@@ -21,15 +21,17 @@ class BidPlacement
     existing = find_existing
     return replay(existing) if existing
 
-    # TODO(human): разослать LotChannel-событие { type: "bid_placed", lotId: } для принятой ставки —
-    # только после коммита и не для повторов
-    @lot.with_lock do
+    res = @lot.with_lock do
       # Параллельный запрос с тем же ключом мог успеть, пока ждали блокировку
       existing = find_existing
       return replay(existing) if existing
 
       Result.new(bid: place, replayed: false)
     end
+    unless res.bid.status == "rejected"
+        LotChannel.broadcast_to(@lot, { type: "bid_placed", lotId: @lot.id })
+    end
+    res
   rescue ActiveRecord::RecordNotUnique
     # Тот же ключ одновременно пришёл на другой лот: он заблокирован отдельно, разрулил уникальный индекс
     replay(find_existing || raise)
