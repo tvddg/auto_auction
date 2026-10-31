@@ -30,6 +30,7 @@ class BidPlacement
     end
     unless res.bid.status == "rejected"
         LotChannel.broadcast_to(@lot, { type: "bid_placed", lotId: @lot.id })
+        ActionCable.server.broadcast("lots", { type: "bid_placed", lotId: @lot.id })
     end
     res
   rescue ActiveRecord::RecordNotUnique

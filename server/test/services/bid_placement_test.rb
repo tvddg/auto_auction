@@ -126,13 +126,19 @@ class BidPlacementTest < ActiveSupport::TestCase
     assert_broadcast_on(LotChannel.broadcasting_for(@lot), { type: "bid_placed", lotId: @lot.id }) { place }
   end
 
+  test "принятая ставка рассылает событие в каталог" do
+    assert_broadcast_on("lots", { type: "bid_placed", lotId: @lot.id }) { place }
+  end
+
   test "отклонённая ставка и повтор ничего не рассылают" do
     key = SecureRandom.uuid
     place(key:)
 
     assert_no_broadcasts(LotChannel.broadcasting_for(@lot)) do
-      place(amount: 1)
-      place(key:)
+      assert_no_broadcasts("lots") do
+        place(amount: 1)
+        place(key:)
+      end
     end
   end
 end
