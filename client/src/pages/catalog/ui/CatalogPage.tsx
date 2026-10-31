@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import cl from "./CatalogPage.module.css"
 
-import { useLotsInfiniteQuery, type LotListFilters } from "@/entities/lot"
+import { useCatalogChannel, useLotsInfiniteQuery, type LotListFilters } from "@/entities/lot"
 import { toLotCardProps } from "@/features/lot/lot-card"
 import { LotCategories, useLotCategory } from "@/features/lot/lot-categories"
 import { LotFilters, useFiltersStore } from "@/features/lot/lot-filters"
@@ -55,6 +55,7 @@ export function CatalogPage() {
     const filters = useCatalogFilters(debouncedSearch);
 
     const lotsQuery = useLotsInfiniteQuery(filters);
+    useCatalogChannel();
     const pages = lotsQuery.data?.pages ?? [];
     const cards = pages.flatMap((page) => page.items).map(toLotCardProps);
     const total = pages[0]?.total;
