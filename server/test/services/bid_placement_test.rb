@@ -1,6 +1,8 @@
 require "test_helper"
 
 class BidPlacementTest < ActiveSupport::TestCase
+  include ActionCable::TestHelper
+
   # camry_active: продавец one, лидер two, цена 165 000 000, шаг для неё 2 500 000
   MIN_NEXT_BID = 167_500_000
 
