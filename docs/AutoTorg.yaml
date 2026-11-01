@@ -13,6 +13,15 @@ info:
     - Ошибки всегда приходят в едином формате `{ "error": { "code", "message", "details"? } }`
       (см. схему `Error`). `code` — машиночитаемый код в snake_case, `details` — ошибки по полям.
     - Авторизация — заголовок `Authorization: Bearer <accessToken>`; токен выдают эндпоинты `/auth/*`.
+
+    WebSocket:
+    - Соединение гостевое, без токена.
+    - Соединение создается через адрес `/cable` (без приставки `/api/v1`) и протокол ActionCable.
+    - Два канала - LotChannel (для страницы отдельного лота) и CatalogChannel (для каталога).
+    - Для подписки на LotChannel требуется только `lotId`, для CatalogChannel - ничего.
+    - Один тип события `{ type: "bid_placed", lotId }`, приходит только на принятую ставку. 
+    - Событие несет только сигнал и требует перезапроса данных: `GET /lot/{id} + GET /lot/{id}/bids` (LotChannel) и `GET /lot` (CatalogChannel).
+    - Соответственно после переподключения клиент сам перезапрашивает данные.
 servers:
   - url: 'http://localhost:3000/api/v1'
     description: Rails напрямую
